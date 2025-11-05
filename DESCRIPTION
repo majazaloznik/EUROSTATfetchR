@@ -1,0 +1,21 @@
+Package: EUROSTATfetchR
+Type: Package
+Title: UMAR platform importing package for Eurostat
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Maja", "Založnik",
+      email = "maja.zaloznik@gmail.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: of the fetchR family of packages. 
+Internal UMAR package for parsing dataseries from Eurostat and importing them into the platform database.
+
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    dittodb,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
