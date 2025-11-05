@@ -11,7 +11,6 @@ Authors@R: c(
   )
 Description: of the fetchR family of packages. 
 Internal UMAR package for parsing dataseries from Eurostat and importing them into the platform database.
-
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
