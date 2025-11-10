@@ -23,8 +23,10 @@ Imports:
     dbplyr,
     dplyr,
     eurostat,
+    jsonlite,
     purrr,
     RPostgres,
+    tibble,
     UMARaccessR,
     UMARimportR
 Remotes:

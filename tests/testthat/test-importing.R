@@ -19,8 +19,8 @@ test_that("EUROSTAT_import_structure imports categories and relationships correc
 
 test_that("EUROSTAT_import_structure fails gracefully for invalid dataset", {
   dittodb::with_mock_db({
-    toc <- eurostat::get_eurostat_toc()
     con_test <- make_test_connection()
+    toc <- eurostat::get_eurostat_toc()
     expect_error(EUROSTAT_import_structure(con_test, "fake_dataset", source_id = 7),
                  "Dataset not found in TOC")
   })
