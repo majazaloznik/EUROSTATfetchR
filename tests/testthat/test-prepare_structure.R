@@ -56,11 +56,12 @@ test_that("prepare_category_table_table handles single hierarchy dataset", {
 
 
 test_that("prepare_category_table_table fails for non-existent dataset", {
+  dittodb::with_mock_db({
   con_test <- make_test_connection()
   toc <- eurostat::get_eurostat_toc()
 
   expect_error(
     prepare_category_table_table("fake_dataset", toc, con_test, source_id = 7),
-    "Dataset not found in TOC"
-  )
+    "Dataset not found in TOC")
+  })
 })
