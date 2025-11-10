@@ -8,6 +8,8 @@
 #' @export
 EUROSTAT_import_structure <- function(con, dataset_code, source_id = 7, schema = "platform") {
   toc <- eurostat::get_eurostat_toc()
+
+  # insert categories and category relationships
   ancestors <- get_dataset_ancestors(dataset_code, toc)
 
   for (inst in unique(ancestors$instance)) {

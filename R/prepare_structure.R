@@ -113,3 +113,124 @@ prepare_category_table_table <- function(code, toc, con, source_id = 7, schema =
     source_id = source_id
   )
 }
+
+#' Extract dimension structure from Eurostat dataset
+#'
+#' Helper function that downloads a Eurostat dataset and extracts all dimensions
+#' with their unique levels and labels. Dimensions with only one unique value are excluded
+#' as they are constants rather than true dimensions. This output is used by both
+#' prepare_table_dimensions_table and prepare_dimension_levels_table.
+#'
+#' @param code the original Eurostat code (e.g. agr_r_animal)
+#'
+#' @return a named list where each element is a dataframe with columns `level_value`
+#'   and `level_text` for that dimension. Only dimensions with 2+ unique values are included.
+#' @export
+extract_dimension_structure <- function(code) {
+  # Download data
+  data <- eurostat::get_eurostat(code)
+
+  # Identify and exclude non-dimension columns
+  exclude_cols <- c("TIME_PERIOD", "values", "freq")
+
+  # Get dimension columns
+  dim_cols <- setdiff(names(data), exclude_cols)
+
+  # Extract unique levels for each dimension with their labels
+  dim_structure <- purrr::map(dim_cols, function(dim) {
+    # Get unique codes from data
+    codes <- unique(data[[dim]]) |> sort()
+
+    # Get labels from dictionary
+    dic <- eurostat::get_eurostat_dic(dim)
+
+    # Match codes to labels
+    labels <- dic$full_name[match(codes, dic[[1]])]  # First column is the code
+
+    # Return as dataframe
+    tibble::tibble(
+      level_value = codes,
+      level_text = labels
+    )
+  })
+  names(dim_structure) <- dim_cols
+
+  # Remove dimensions with only one unique value
+  dim_structure <- purrr::keep(dim_structure, ~ nrow(.x) > 1)
+
+  dim_structure
+}
+
+
+
+#' Prepare table to insert into `table_dimensions` table
+#'
+#' Extracts dimension information from a Eurostat dataset and prepares it for
+#' insertion into the table_dimensions table. Only non-time dimensions are included.
+#'
+#' @param code the original Eurostat code (e.g. agr_r_animal)
+#' @param dim_structure output from extract_dimension_structure() (optional, will be computed if not provided)
+#' @param con a connection to the database
+#' @param schema the schema to use for the connection, default is "platform"
+#'
+#' @return a dataframe with `table_id`, `dimension`, and `is_time` columns
+#' @export
+prepare_table_dimensions_table <- function(code, dim_structure = NULL, con, schema = "platform") {
+  # Get table ID from database
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code, schema)
+
+  # Get dimension structure if not provided
+  if (is.null(dim_structure)) {
+    dim_structure <- extract_dimension_structure(code)
+  }
+
+  # Build result - all dimensions have is_time = FALSE
+  tibble::tibble(
+    table_id = tbl_id,
+    dimension = names(dim_structure),
+    is_time = FALSE
+  )
+}
+
+
+#' Prepare table to insert into `dimension_levels` table
+#'
+#' Extracts dimension levels from a Eurostat dataset and prepares them for
+#' insertion into the dimension_levels table.
+#'
+#' @param code the original Eurostat code (e.g. agr_r_animal)
+#' @param dim_structure output from extract_dimension_structure() (optional, will be computed if not provided)
+#' @param con a connection to the database
+#' @param schema the schema to use for the connection, default is "platform"
+#'
+#' @return a dataframe with `tab_dim_id`, `level_value`, and `level_text` columns
+#' @export
+prepare_dimension_levels_table <- function(code, dim_structure = NULL, con, schema = "platform") {
+  # Get table ID from database
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code, schema)
+
+  # Get dimension structure if not provided
+  if (is.null(dim_structure)) {
+    dim_structure <- extract_dimension_structure(code)
+  }
+
+  # For each dimension, get its tab_dim_id and build the levels dataframe
+  result <- purrr::map_dfr(names(dim_structure), function(dim_name) {
+    # Get the dimension ID from database
+    tab_dim_id <- UMARaccessR::sql_get_dimension_id_from_table_id_and_dimension(
+      tbl_id,
+      dim_name,
+      con,
+      schema
+    )
+
+    # Get the levels for this dimension
+    levels_df <- dim_structure[[dim_name]]
+
+    # Add tab_dim_id column
+    levels_df |>
+      dplyr::mutate(tab_dim_id = tab_dim_id, .before = 1)
+  })
+
+  result
+}

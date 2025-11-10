@@ -2,8 +2,11 @@
 
 export(EUROSTAT_import_structure)
 export(category_exists_with_parent)
+export(extract_dimension_structure)
 export(get_dataset_ancestors)
 export(get_next_category_id)
 export(prepare_category_table_table)
+export(prepare_dimension_levels_table)
 export(prepare_source_table)
+export(prepare_table_dimensions_table)
 export(prepare_table_table)

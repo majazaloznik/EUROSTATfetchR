@@ -58,6 +58,28 @@ toc <- eurostat::get_eurostat_toc()
 # Now capture the prepare_category_table_table calls
 prepare_category_table_table("agr_r_animal", toc, con_test, source_id = 7)
 prepare_category_table_table("teicp000", toc, con_test, source_id = 7)
-prepare_category_table_table("some_unimported_dataset", toc, con_test, source_id = 7)
 dittodb::stop_db_capturing()
 
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+# Prepare dimension structure once to use for both functions
+dim_structure_teicp <- extract_dimension_structure("teicp000")
+dim_structure_agr <- extract_dimension_structure("agr_r_animal")
+
+# Mock dim_structure for controlled testing
+dim_structure_mock <- list(
+  unit = tibble::tibble(level_value = c("PC", "EUR"), level_text = c("Percent", "Euro")),
+  geo = tibble::tibble(level_value = c("AT", "BE", "SI"), level_text = c("Austria", "Belgium", "Slovenia"))
+)
+
+# Capture prepare_table_dimensions_table
+prepare_table_dimensions_table("teicp000", dim_structure_mock, con_test)
+prepare_table_dimensions_table("teicp000", con = con_test)  # Without dim_structure
+
+# Capture prepare_dimension_levels_table
+prepare_dimension_levels_table("teicp000", dim_structure_mock, con_test)
+prepare_dimension_levels_table("teicp000", con = con_test)  # Without dim_structure
+
+dittodb::stop_db_capturing()
