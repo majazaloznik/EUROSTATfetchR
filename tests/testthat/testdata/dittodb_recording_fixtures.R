@@ -83,3 +83,18 @@ prepare_dimension_levels_table("teicp000", dim_structure_mock, con_test)
 prepare_dimension_levels_table("teicp000", con = con_test)  # Without dim_structure
 
 dittodb::stop_db_capturing()
+
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+# Capture queries for mapped units
+# Make sure these units are in your eurostat_unit_map first!
+get_umar_unit_id("PC", con_test)
+get_umar_unit_id("I15", con_test)
+get_umar_unit_id("I20", con_test)
+get_umar_unit_id("EUR", con_test)
+get_umar_unit_id("THS", con_test)
+
+dittodb::stop_db_capturing()

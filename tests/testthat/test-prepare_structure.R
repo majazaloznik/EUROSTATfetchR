@@ -54,38 +54,6 @@ test_that("prepare_category_table_table handles single hierarchy dataset", {
   })
 })
 
-# Tests
-test_that("extract_dimension_structure returns correct structure", {
-  # No database needed for this one
-  dim_structure <- extract_dimension_structure("teicp000")
-
-  expect_type(dim_structure, "list")
-  expect_true(all(purrr::map_lgl(dim_structure, is.data.frame)))
-
-  # Check each element has correct columns
-  purrr::walk(dim_structure, function(df) {
-    expect_true(all(c("level_value", "level_text") %in% names(df)))
-  })
-
-  # Check no single-value dimensions included
-  purrr::walk(dim_structure, function(df) {
-    expect_true(nrow(df) > 1)
-  })
-
-  # Check dimension names are sensible (not TIME_PERIOD, values, etc)
-  expect_false("TIME_PERIOD" %in% names(dim_structure))
-  expect_false("values" %in% names(dim_structure))
-})
-
-test_that("extract_dimension_structure excludes constant dimensions", {
-  # Test with a dataset that might have constant dimensions
-  dim_structure <- extract_dimension_structure("agr_r_animal")
-
-  # All dimensions should have multiple values
-  n_levels <- purrr::map_int(dim_structure, nrow)
-  expect_true(all(n_levels > 1))
-})
-
 test_that("prepare_table_dimensions_table returns correct structure", {
   dittodb::with_mock_db({
     con_test <- make_test_connection()

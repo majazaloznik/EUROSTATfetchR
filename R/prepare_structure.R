@@ -114,53 +114,6 @@ prepare_category_table_table <- function(code, toc, con, source_id = 7, schema =
   )
 }
 
-#' Extract dimension structure from Eurostat dataset
-#'
-#' Helper function that downloads a Eurostat dataset and extracts all dimensions
-#' with their unique levels and labels. Dimensions with only one unique value are excluded
-#' as they are constants rather than true dimensions. This output is used by both
-#' prepare_table_dimensions_table and prepare_dimension_levels_table.
-#'
-#' @param code the original Eurostat code (e.g. agr_r_animal)
-#'
-#' @return a named list where each element is a dataframe with columns `level_value`
-#'   and `level_text` for that dimension. Only dimensions with 2+ unique values are included.
-#' @export
-extract_dimension_structure <- function(code) {
-  # Download data
-  data <- eurostat::get_eurostat(code)
-
-  # Identify and exclude non-dimension columns
-  exclude_cols <- c("TIME_PERIOD", "values", "freq")
-
-  # Get dimension columns
-  dim_cols <- setdiff(names(data), exclude_cols)
-
-  # Extract unique levels for each dimension with their labels
-  dim_structure <- purrr::map(dim_cols, function(dim) {
-    # Get unique codes from data
-    codes <- unique(data[[dim]]) |> sort()
-
-    # Get labels from dictionary
-    dic <- eurostat::get_eurostat_dic(dim)
-
-    # Match codes to labels
-    labels <- dic$full_name[match(codes, dic[[1]])]  # First column is the code
-
-    # Return as dataframe
-    tibble::tibble(
-      level_value = codes,
-      level_text = labels
-    )
-  })
-  names(dim_structure) <- dim_cols
-
-  # Remove dimensions with only one unique value
-  dim_structure <- purrr::keep(dim_structure, ~ nrow(.x) > 1)
-
-  dim_structure
-}
-
 
 
 #' Prepare table to insert into `table_dimensions` table
@@ -169,7 +122,7 @@ extract_dimension_structure <- function(code) {
 #' insertion into the table_dimensions table. Only non-time dimensions are included.
 #'
 #' @param code the original Eurostat code (e.g. agr_r_animal)
-#' @param dim_structure output from extract_dimension_structure() (optional, will be computed if not provided)
+#' @param dim_structure output from extract_dimension_structure()$dimensions (optional, will be computed if not provided)
 #' @param con a connection to the database
 #' @param schema the schema to use for the connection, default is "platform"
 #'
@@ -181,7 +134,7 @@ prepare_table_dimensions_table <- function(code, dim_structure = NULL, con, sche
 
   # Get dimension structure if not provided
   if (is.null(dim_structure)) {
-    dim_structure <- extract_dimension_structure(code)
+    dim_structure <- extract_dimension_structure(code)$dimensions
   }
 
   # Build result - all dimensions have is_time = FALSE
@@ -199,11 +152,11 @@ prepare_table_dimensions_table <- function(code, dim_structure = NULL, con, sche
 #' insertion into the dimension_levels table.
 #'
 #' @param code the original Eurostat code (e.g. agr_r_animal)
-#' @param dim_structure output from extract_dimension_structure() (optional, will be computed if not provided)
+#' @param dim_structure output from extract_dimension_structure()$dimensions (optional, will be computed if not provided)
 #' @param con a connection to the database
 #' @param schema the schema to use for the connection, default is "platform"
 #'
-#' @return a dataframe with `tab_dim_id`, `level_value`, and `level_text` columns
+#' @return a dataframe with `tab_dim_id`, `dimension`, `level_value`, and `level_text` columns
 #' @export
 prepare_dimension_levels_table <- function(code, dim_structure = NULL, con, schema = "platform") {
   # Get table ID from database
@@ -211,7 +164,7 @@ prepare_dimension_levels_table <- function(code, dim_structure = NULL, con, sche
 
   # Get dimension structure if not provided
   if (is.null(dim_structure)) {
-    dim_structure <- extract_dimension_structure(code)
+    dim_structure <- extract_dimension_structure(code)$dimensions
   }
 
   # For each dimension, get its tab_dim_id and build the levels dataframe
@@ -229,8 +182,153 @@ prepare_dimension_levels_table <- function(code, dim_structure = NULL, con, sche
 
     # Add tab_dim_id column
     levels_df |>
-      dplyr::mutate(tab_dim_id = tab_dim_id, .before = 1)
+      dplyr::mutate(tab_dim_id = tab_dim_id,
+                    dimension = dim_name, .before = 1)
   })
 
   result
 }
+
+#' Prepare table to insert into `series` table
+#'
+#' This is a big one. Prepares the table to insert into the series table, which
+#' along expanding the levels to get all the series and their codes as well, which
+#' include also figuring out their time interval, this function also tries to
+#' extract the unit for each series,
+#' Returns table ready to insert into the `series`table with the
+#' db_writing family of functions.
+#'
+#' @param code the original Eurostat code (e.g. agr_r_animal)
+#' @param dim_structure  output from extract_dimension_structure() (optional, will be computed if not provided)
+#' @param con connection to the database
+#' @param schema database schema, defaults to "platform"
+#'
+#' @return a dataframe with the following columns: `series_title`, `series_code`,
+#' `unit_id`, `table_id` and `interval_id`for each series in the table
+#' well as the same number of rows as there are series
+#' @export
+
+prepare_series_table <- function(code, con, dim_structure = NULL, schema = "platform"){
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code, schema)
+
+  # Get dimension structure if not provided
+  if (is.null(dim_structure)) {
+    dim_structure <- extract_dimension_structure(code)
+  }
+
+  # Get actual dimension level combinations from database (respects user filtering)
+  level_combos <- expand_to_level_codes(tbl_id, con, schema)
+
+  # Get dimension names from database to match with unit_mapping columns
+  dim_names <- UMARaccessR::sql_get_dimensions_from_table_id(tbl_id, con, schema)$dimension
+
+  # Rename level_combos columns to match dimension names
+  names(level_combos) <- dim_names
+
+  # Check if freq is a dimension (variable interval case)
+  has_freq_dimension <- "freq" %in% dim_names
+
+  # If freq is a dimension, we need to handle the join differently
+  if (has_freq_dimension) {
+    # Rename freq to interval in level_combos to match unit_mapping
+    level_combos <- level_combos |>
+      dplyr::rename(interval = freq)
+    # Update dim_names
+    dim_names[dim_names == "freq"] <- "interval"
+  }
+
+  # Handle units and intervals
+  if (!is.null(dim_structure$unit_mapping)) {
+    # Join to get units (and possibly intervals)
+    series_with_units <- level_combos |>
+      dplyr::left_join(dim_structure$unit_mapping, by = dim_names)
+
+    # If no freq dimension, add constant interval
+    if (!has_freq_dimension) {
+      series_with_units$interval <- dim_structure$interval
+    }
+  } else {
+    # No unit dimension - prompt user for each unique combination
+    message("Table '", code, "' has no unit dimension. Please specify units for each series type.")
+
+    unique_combos <- level_combos |>
+      dplyr::distinct()
+
+    # Prompt for each unique combination
+    units <- character(nrow(unique_combos))
+    for (i in seq_len(nrow(unique_combos))) {
+      combo_desc <- paste(names(unique_combos), unique_combos[i, ], sep = "=", collapse = ", ")
+      prompt_msg <- sprintf("Enter unit for: %s", combo_desc)
+      units[i] <- readline(prompt = paste0(prompt_msg, ": "))
+    }
+
+    unique_combos$unit <- units
+
+    series_with_units <- level_combos |>
+      dplyr::left_join(unique_combos, by = dim_names)
+
+    # Add interval
+    if (!has_freq_dimension) {
+      if (is.null(dim_structure$interval)) {
+        stop("Table has no constant interval and no interval in mapping. Cannot proceed.")
+      }
+      series_with_units$interval <- dim_structure$interval
+    }
+  }
+
+  # Remove interval from dim_names for series code construction (it goes at the end)
+  dim_names_for_code <- setdiff(dim_names, "interval")
+
+  # Build series table
+  series_with_units |>
+    dplyr::rowwise() |>
+    dplyr::mutate(unit_id = get_umar_unit_id(unit, con, schema)) |>
+    dplyr::ungroup() |>
+    tidyr::unite("internal_code", dplyr::all_of(dim_names_for_code), sep = "--", remove = FALSE) |>
+    dplyr::mutate(internal_code = paste0("EUROSTAT--", code, "--",
+                                         internal_code, "--", interval)) |>
+    cbind(expand_to_series_titles(tbl_id, con, schema)) |>
+    dplyr::mutate(table_id = tbl_id) |>
+    dplyr::rename(code = internal_code,
+                  interval_id = interval) |>
+    dplyr::select(table_id, name_long, unit_id, code, interval_id)
+}
+
+
+
+
+#' Prepare table to insert into `series_levels` table
+#'
+#' Helper function that extracts the individual levels for each series and
+#' gets the correct dimension id for each one and the correct series id to
+#' keep with the constraints.
+#' Returns table ready to insert into the `series_levels`table with the
+#' db_writing family of functions.
+#'
+#'
+#' @param code the original Eurostat code (e.g. agr_r_animal)
+#' @param con connection to the database
+#' @param schema database schema, defaults to "platform"
+#' @return a dataframe with the `series_id`, `tab_dim_id`, `level_value` columns
+#' all the series-level combinatins for this table.
+#' @export
+#'
+prepare_series_levels_table <- function(code, con, schema = "platform") {
+  tbl_id <-  UMARaccessR::sql_get_table_id_from_table_code(con, code, schema)
+  dimz <- UMARaccessR::sql_get_dimensions_from_table_id(tbl_id, con, schema) |>
+    dplyr::filter(is_time != TRUE) |>
+    dplyr::pull(id)
+
+  UMARaccessR::sql_get_series_from_table_id(tbl_id, con, schema) |>
+    dplyr::filter(table_id == tbl_id) |>
+    dplyr::select(table_id, id, code)  |>
+    tidyr::separate(code, into = c("x1", "x2", paste0(dimz), "x3"), sep = "--") |>
+    dplyr::select(series_id = id,  paste0(dimz)) |>
+    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id") |>
+    dplyr::rename(level_value = value) |>
+    as.data.frame()
+}
+
+
+
+

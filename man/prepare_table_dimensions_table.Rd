@@ -14,7 +14,7 @@ prepare_table_dimensions_table(
 \arguments{
 \item{code}{the original Eurostat code (e.g. agr_r_animal)}
 
-\item{dim_structure}{output from extract_dimension_structure() (optional, will be computed if not provided)}
+\item{dim_structure}{output from extract_dimension_structure()$dimensions (optional, will be computed if not provided)}
 
 \item{con}{a connection to the database}
 

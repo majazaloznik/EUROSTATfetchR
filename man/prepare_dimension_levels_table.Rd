@@ -14,14 +14,14 @@ prepare_dimension_levels_table(
 \arguments{
 \item{code}{the original Eurostat code (e.g. agr_r_animal)}
 
-\item{dim_structure}{output from extract_dimension_structure() (optional, will be computed if not provided)}
+\item{dim_structure}{output from extract_dimension_structure()$dimensions (optional, will be computed if not provided)}
 
 \item{con}{a connection to the database}
 
 \item{schema}{the schema to use for the connection, default is "platform"}
 }
 \value{
-a dataframe with `tab_dim_id`, `level_value`, and `level_text` columns
+a dataframe with `tab_dim_id`, `dimension`, `level_value`, and `level_text` columns
 }
 \description{
 Extracts dimension levels from a Eurostat dataset and prepares them for

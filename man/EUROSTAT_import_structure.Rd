@@ -6,19 +6,26 @@
 \usage{
 EUROSTAT_import_structure(
   con,
-  dataset_code,
+  code,
   source_id = 7,
-  schema = "platform"
+  schema = "platform",
+  all_levels = FALSE,
+  keep_vintage = FALSE
 )
 }
 \arguments{
 \item{con}{Database connection object}
 
-\item{dataset_code}{Character, Eurostat dataset code}
+\item{code}{Character, Eurostat dataset code}
 
 \item{source_id}{Integer source ID, default 7 for Eurostat}
 
 \item{schema}{defautls to "platform"}
+
+\item{all_levels}{logical whether to let user use dimension selector, default
+is FALSE, which automatically selects all levels in all dimensions}
+
+\item{keep_vintage}{logical indicating whether to keep vintages, defaults to F}
 }
 \description{
 Import structure for a single dataset (categories, relationships, and table info)

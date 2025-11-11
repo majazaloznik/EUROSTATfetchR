@@ -27,8 +27,11 @@ Imports:
     purrr,
     RPostgres,
     tibble,
+    tidyr,
     UMARaccessR,
     UMARimportR
 Remotes:
     majazaloznik/UMARaccessR,
     majazaloznik/UMARimportR
+Depends: 
+    R (>= 3.5)

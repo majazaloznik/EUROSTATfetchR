@@ -1,0 +1,165 @@
+#' Extract dimension structure from Eurostat dataset
+#'
+#' Helper function that downloads a Eurostat dataset and extracts all dimensions
+#' with their unique levels and labels, plus the frequency/interval and unit
+#' mapping for each dimension combination. Dimensions with only one unique value
+#' are excluded as they are constants rather than true dimensions.
+#'
+#' @param code the original Eurostat code (e.g. agr_r_animal)
+#'
+#' @return a list with three elements:
+#'   - `dimensions`: a named list where each element is a dataframe with columns
+#'     `level_value` and `level_text` for that dimension. Only dimensions with
+#'     2+ unique values are included.
+#'   - `interval`: a single character string with the interval code (e.g., "M", "A", "Q")
+#'   - `unit_mapping`: a dataframe with dimension level columns plus a `unit` column,
+#'     showing which unit applies to each dimension combination
+#' @export
+extract_dimension_structure <- function(code) {
+  # Download data
+  data <- eurostat::get_eurostat(code)
+
+  # Check freq column exists
+  if (!"freq" %in% names(data)) {
+    stop(sprintf("Dataset '%s' does not have a 'freq' column", code))
+  }
+
+  freq_values <- unique(data$freq)
+
+  # Check if single or multiple frequencies
+  if (length(freq_values) == 1) {
+    interval <- as.character(freq_values[1])
+    freq_is_constant <- TRUE
+  } else {
+    # Multiple frequencies - will be in unit_mapping
+    interval <- NULL
+    freq_is_constant <- FALSE
+  }
+
+  # Identify unit-like dimensions
+  unit_dims <- c("unit", "indic", "indic_et", "indic_de", "indic_bt", "indic_nrg")
+
+  # Find which unit dimension exists (if any)
+  unit_col <- intersect(names(data), unit_dims)
+
+  if (length(unit_col) > 1) {
+    stop(sprintf("Dataset '%s' has multiple unit-like dimensions: %s",
+                 code, paste(unit_col, collapse = ", ")))
+  }
+
+  # Identify and exclude non-dimension columns
+  exclude_cols <- c("TIME_PERIOD", "values")
+  if (freq_is_constant) {
+    exclude_cols <- c(exclude_cols, "freq")
+  }
+
+  # Get dimension columns
+  dim_cols <- setdiff(names(data), exclude_cols)
+
+  # Extract unique levels for each dimension with their labels
+  dim_structure <- purrr::map(dim_cols, function(dim) {
+    codes <- unique(data[[dim]]) |> sort()
+    dic <- eurostat::get_eurostat_dic(dim)
+    labels <- dic$full_name[match(codes, dic[[1]])]
+    tibble::tibble(level_value = codes, level_text = labels)
+  })
+  names(dim_structure) <- dim_cols
+
+  # Remove dimensions with only one unique value
+  dim_structure <- purrr::keep(dim_structure, ~ nrow(.x) > 1)
+
+  # Create unit mapping
+  mapping_cols <- names(dim_structure)
+  if (!freq_is_constant) {
+    mapping_cols <- c(mapping_cols, "freq")
+  }
+
+  if (length(unit_col) == 1) {
+    unit_mapping <- data |>
+      dplyr::select(dplyr::all_of(c(mapping_cols, unit_col))) |>
+      dplyr::distinct() |>
+      dplyr::mutate(unit = .data[[unit_col]])
+  } else if (!freq_is_constant) {
+    # No unit column but multiple freqs - need freq in mapping
+    unit_mapping <- data |>
+      dplyr::select(dplyr::all_of(mapping_cols)) |>
+      dplyr::distinct() |>
+      dplyr::mutate(unit = NA_character_)  # Will need manual input
+  } else {
+    unit_mapping <- NULL
+  }
+
+  # Add interval to mapping if not constant
+  if (!freq_is_constant && !is.null(unit_mapping)) {
+    unit_mapping <- unit_mapping |>
+      dplyr::rename(interval = freq)
+  }
+
+  list(
+    dimensions = dim_structure,
+    interval = interval,  # NULL if multiple frequencies
+    unit_mapping = unit_mapping  # Now includes interval column if freq varies
+  )
+}
+#' Get UMAR unit ID from Eurostat unit code
+#'
+#' Maps Eurostat's granular unit codes to UMAR's simplified unit taxonomy and
+#' retrieves the corresponding unit ID from the database. Eurostat uses hundreds
+#' of specific unit codes (e.g., different index base years, chain-linked volumes),
+#' while UMAR maintains a curated set of high-level units (index, percentage, etc.).
+#'
+#' The mapping is maintained in the package data `eurostat_unit_map`. When an
+#' unmapped unit is encountered, the function stops with an error message
+#' suggesting how to add the mapping.
+#'
+#' @param eurostat_unit Character, the Eurostat unit code (e.g., "I15", "PC_GDP")
+#' @param con Database connection object
+#' @param schema Character, database schema name, default is "platform"
+#'
+#' @return Integer, the unit ID from the database
+#'
+#' @export
+get_umar_unit_id <- function(eurostat_unit, con, schema = "platform") {
+  mapped <- eurostat_unit_map$umar_unit[eurostat_unit_map$eurostat_unit == eurostat_unit]
+
+  if (length(mapped) == 0) {
+    stop(sprintf(
+      "Eurostat unit '%s' not mapped.\n\nAdd to data-raw/eurostat_unit_map.R and run:\n  source('data-raw/eurostat_unit_map.R')
+      \nThen push package update.",
+      eurostat_unit
+    ))
+  }
+
+  UMARaccessR::sql_get_unit_id_from_unit_name(mapped[1], con, schema)
+}
+
+
+#' Expanding from levels to series codes and titles
+#'
+#' These two helper functions take a set of non-time levels for a single table
+#' and expand the grid to get all of their combinations and then either return
+#' a dataframe with columns for each level code, or one where the level texts
+#' have been concatenated into the series titles.
+#' @param code_no code e.g. 0300230S
+#' @return dataframe with expanded levels, one column per non-time dimension plus
+#' unit_id for the level codes and sinle column with series titles for the other one.
+#' @rdname expanding
+#' @keywords internal
+expand_to_level_codes <- function (tbl_id, con, schema = "platform") {
+  levels <- UMARaccessR::sql_get_dimension_levels_from_table_id(tbl_id, con, schema )
+  do.call(expand.grid,
+          c(setNames(split(levels$level_value, levels$tab_dim_id),
+                     paste0("Var", seq_along(unique(levels$tab_dim_id)))),
+            stringsAsFactors = FALSE))
+}
+
+#' @rdname expanding
+#' @keywords internal
+expand_to_series_titles <- function (tbl_id, con, schema = "platform") {
+  levels <- UMARaccessR::sql_get_dimension_levels_from_table_id(tbl_id, con, schema )
+  do.call(expand.grid,
+          c(setNames(split(levels$level_text, levels$tab_dim_id),
+                     paste0("Var", seq_along(unique(levels$tab_dim_id)))),
+            stringsAsFactors = FALSE)) |>
+    tidyr::unite("name_long", dplyr::everything(), sep = " -- ")
+}
