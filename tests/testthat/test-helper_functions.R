@@ -54,12 +54,12 @@ test_that("get_umar_unit_id maps known units correctly", {
 })
 
 test_that("get_umar_unit_id fails with helpful message for unmapped units", {
+  dittodb::with_mock_db({
   con_test <- make_test_connection()
-
   expect_error(
     get_umar_unit_id("UNKNOWN_UNIT_XYZ", con_test),
-    "not mapped.*Add to data-raw/eurostat_unit_map.R"
-  )
+    "not mapped.*Add to data-raw/eurostat_unit_map.R")
+  })
 })
 
 test_that("get_umar_unit_id handles multiple units with same mapping", {
