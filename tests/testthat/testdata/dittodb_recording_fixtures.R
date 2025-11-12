@@ -98,3 +98,93 @@ get_umar_unit_id("EUR", con_test)
 get_umar_unit_id("THS", con_test)
 
 dittodb::stop_db_capturing()
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+# Explicit mappings
+get_umar_unit_id("EUR", con_test)
+get_umar_unit_id("THS", con_test)
+get_umar_unit_id("PC", con_test)
+
+# Pattern-based (these will call sql_get_unit_id_from_name with "percentage" or "index")
+get_umar_unit_id("PC_GDP", con_test)
+get_umar_unit_id("PC_POP", con_test)
+get_umar_unit_id("PCH_M1", con_test)
+get_umar_unit_id("I15", con_test)
+get_umar_unit_id("I05", con_test)
+
+dittodb::stop_db_capturing()
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+# Get table IDs
+tbl_id_teicp <- UMARaccessR::sql_get_table_id_from_table_code(con_test, "teicp000", "platform")
+tbl_id_agr <- UMARaccessR::sql_get_table_id_from_table_code(con_test, "agr_r_animal", "platform")
+
+# Capture expand_to_level_codes
+EUROSTATfetchR:::expand_to_level_codes(tbl_id_teicp, con_test)
+EUROSTATfetchR:::expand_to_level_codes(tbl_id_agr, con_test)
+
+# Capture expand_to_series_titles
+EUROSTATfetchR:::expand_to_series_titles(tbl_id_teicp, con_test)
+EUROSTATfetchR:::expand_to_series_titles(tbl_id_agr, con_test)
+
+dittodb::stop_db_capturing()
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+# Single frequency table
+prepare_series_table("teicp000", con_test)
+
+# Indicator dimension table
+prepare_series_table("ext_lt_introeu27_2020", con_test)
+
+# With pre-computed dim_structure
+dim_struct_teicp <- extract_dimension_structure("teicp000")
+prepare_series_table("teicp000", con_test, dim_structure = dim_struct_teicp)
+
+# Multi-frequency table (if you have one)
+prepare_series_table("avia_gooc", con_test)
+
+dittodb::stop_db_capturing()
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+# Simple table
+prepare_series_levels_table("teicp000", con_test)
+
+# Multi-dimension table
+prepare_series_levels_table("agr_r_animal", con_test)
+
+# Table with indicator dimension
+prepare_series_levels_table("ext_lt_introeu27_2020", con_test)
+
+# Also need series table queries for cross-referencing
+prepare_series_table("teicp000", con_test)
+prepare_series_table("agr_r_animal", con_test)
+
+dittodb::stop_db_capturing()
+
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con_test, "teicp000", "platform")
+series_ids_from_db <- UMARaccessR::sql_get_series_ids_from_table_id(tbl_id, con_test, "platform")
+
+dittodb::stop_db_capturing()
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+EUROSTAT_import_structure(con_test, "teiet215", source_id = 7, all_levels = TRUE)
+# Then select minimal levels in the interactive prompt
+
+dittodb::stop_db_capturing()

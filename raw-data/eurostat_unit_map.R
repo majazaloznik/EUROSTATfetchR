@@ -29,7 +29,10 @@ eurostat_unit_map <- tibble::tribble(
   "PCH_PRE", "%",
   "PCH_SM", "%",
   "PCH_M1_NSA", "%",
-  "PCH_M1_SCA", "%"
+  "PCH_M1_SCA", "%",
+  "I21_NSA", "%",
+  "BS-ESI-I", "ravnotežje v odstotnih točkah",
+  "NAC", "usd"
 )
 
 # eurostat_unit_dictionary <- eurostat::get_eurostat_dic("unit")

@@ -59,7 +59,6 @@ EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platfo
   message("Category table insert: ", insert_results$category_table$count, " rows")
   # extract dimension data
   dim_struct <- extract_dimension_structure(code)
-
   # prepare and insert table dimension table
   table_dimension_table <- prepare_table_dimensions_table(code, dim_struct$dimensions, con, schema)
   insert_results$table_dimensions <- UMARimportR::insert_new_table_dimensions(

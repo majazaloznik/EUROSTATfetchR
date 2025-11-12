@@ -39,12 +39,31 @@ extract_dimension_structure <- function(code) {
   # Identify unit-like dimensions
   unit_dims <- c("unit", "indic", "indic_et", "indic_de", "indic_bt", "indic_nrg")
 
-  # Find which unit dimension exists (if any)
-  unit_col <- intersect(names(data), unit_dims)
+  # Find which unit dimensions exist
+  available_unit_cols <- intersect(names(data), unit_dims)
 
-  if (length(unit_col) > 1) {
-    stop(sprintf("Dataset '%s' has multiple unit-like dimensions: %s",
-                 code, paste(unit_col, collapse = ", ")))
+
+  # Separate into those with variation and those that are constants
+  unit_cols_with_variation <- purrr::keep(available_unit_cols, function(col) {
+    length(unique(data[[col]])) > 1
+  })
+
+  unit_cols_constant <- purrr::keep(available_unit_cols, function(col) {
+    length(unique(data[[col]])) == 1
+  })
+
+  # Pick the unit column (prefer one with variation, otherwise use constant)
+  if (length(unit_cols_with_variation) > 0) {
+    unit_col <- unit_cols_with_variation[1]
+  } else if (length(unit_cols_constant) > 0) {
+    unit_col <- unit_cols_constant[1]
+  } else {
+    unit_col <- character(0)
+  }
+
+  if (length(unit_cols_with_variation) > 1) {
+    stop(sprintf("Dataset '%s' has multiple unit-like dimensions with variation: %s",
+                 code, paste(unit_cols_with_variation, collapse = ", ")))
   }
 
   # Identify and exclude non-dimension columns
@@ -122,15 +141,25 @@ extract_dimension_structure <- function(code) {
 get_umar_unit_id <- function(eurostat_unit, con, schema = "platform") {
   mapped <- eurostat_unit_map$umar_unit[eurostat_unit_map$eurostat_unit == eurostat_unit]
 
-  if (length(mapped) == 0) {
-    stop(sprintf(
-      "Eurostat unit '%s' not mapped.\n\nAdd to data-raw/eurostat_unit_map.R and run:\n  source('data-raw/eurostat_unit_map.R')
-      \nThen push package update.",
-      eurostat_unit
-    ))
+  if (length(mapped) > 0) {
+    # Found in mapping table
+    umar_unit <- mapped[1]
+  } else {
+    # Try pattern matching
+    if (grepl("^PC_", eurostat_unit) || grepl("^PCH_", eurostat_unit)) {
+      umar_unit <- "%"
+      message(sprintf("Auto-mapped '%s' → 'percentage' (PC_/PCH_ pattern)", eurostat_unit))
+    } else if (grepl("^I\\d{2}$", eurostat_unit)) {
+      umar_unit <- "indeks"
+      message(sprintf("Auto-mapped '%s' → 'index' (I## pattern)", eurostat_unit))
+    } else {
+      stop(sprintf(
+        "Eurostat unit '%s' not mapped.\n\nAdd to data-raw/eurostat_unit_map.R and run:\n  source('data-raw/eurostat_unit_map.R')\nThen push package update.",
+        eurostat_unit
+      ))
+    }
   }
-
-  UMARaccessR::sql_get_unit_id_from_unit_name(mapped[1], con, schema)
+  UMARaccessR::sql_get_unit_id_from_unit_name(umar_unit, con, schema)
 }
 
 

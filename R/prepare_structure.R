@@ -326,6 +326,7 @@ prepare_series_levels_table <- function(code, con, schema = "platform") {
     dplyr::select(series_id = id,  paste0(dimz)) |>
     tidyr::pivot_longer(-series_id, names_to = "tab_dim_id") |>
     dplyr::rename(level_value = value) |>
+    dplyr::mutate(tab_dim_id = as.numeric(tab_dim_id)) |>
     as.data.frame()
 }
 
