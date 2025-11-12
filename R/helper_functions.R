@@ -148,13 +148,13 @@ get_umar_unit_id <- function(eurostat_unit, con, schema = "platform") {
     # Try pattern matching
     if (grepl("^PC_", eurostat_unit) || grepl("^PCH_", eurostat_unit)) {
       umar_unit <- "%"
-      message(sprintf("Auto-mapped '%s' → 'percentage' (PC_/PCH_ pattern)", eurostat_unit))
+      message(sprintf("Auto-mapped '%s' - > 'percentage' (PC_/PCH_ pattern)", eurostat_unit))
     } else if (grepl("^I\\d{2}$", eurostat_unit)) {
       umar_unit <- "indeks"
-      message(sprintf("Auto-mapped '%s' → 'index' (I## pattern)", eurostat_unit))
+      message(sprintf("Auto-mapped '%s' - > 'index' (I## pattern)", eurostat_unit))
     } else {
       stop(sprintf(
-        "Eurostat unit '%s' not mapped.\n\nAdd to data-raw/eurostat_unit_map.R and run:\n  source('data-raw/eurostat_unit_map.R')\nThen push package update.",
+        "Eurostat unit '%s' not mapped.\n\nAdd to data-raw/eurostat_unit_map.R and run:\n source('data-raw/eurostat_unit_map.R')\nThen push package update.",
         eurostat_unit
       ))
     }

@@ -142,10 +142,10 @@ test_that("extract_dimension_structure excludes TIME_PERIOD, values, and constan
 
 test_that("get_umar_unit_id fails with helpful message for unmapped units", {
   dittodb::with_mock_db({
-  con_test <- make_test_connection()
-  expect_error(
-    get_umar_unit_id("UNKNOWN_UNIT_XYZ", con_test),
-    "not mapped.*Add to data-raw/eurostat_unit_map.R")
+    con_test <- make_test_connection()
+    expect_error(
+      get_umar_unit_id("UNKNOWN_UNIT_XYZ", con_test),
+      "not mapped.*Add to data-raw/eurostat_unit_map.R")
   })
 })
 
@@ -224,34 +224,38 @@ test_that("get_umar_unit_id auto-maps I## pattern to index", {
 })
 
 test_that("get_umar_unit_id does not auto-map I with non-2-digit patterns", {
-  con_test <- make_test_connection()
+  dittodb::with_mock_db({
+    con_test <- make_test_connection()
 
-  # I with 1 digit should not match
-  expect_error(
-    get_umar_unit_id("I5", con_test),
-    "not mapped"
-  )
+    # I with 1 digit should not match
+    expect_error(
+      get_umar_unit_id("I5", con_test),
+      "not mapped"
+    )
 
-  # I with 3 digits should not match
-  expect_error(
-    get_umar_unit_id("I150", con_test),
-    "not mapped"
-  )
+    # I with 3 digits should not match
+    expect_error(
+      get_umar_unit_id("I150", con_test),
+      "not mapped"
+    )
 
-  # I with letters should not match
-  expect_error(
-    get_umar_unit_id("IND", con_test),
-    "not mapped"
-  )
+    # I with letters should not match
+    expect_error(
+      get_umar_unit_id("IND", con_test),
+      "not mapped"
+    )
+  })
 })
 
 test_that("get_umar_unit_id errors on unmapped units", {
-  con_test <- make_test_connection()
+  dittodb::with_mock_db({
+    con_test <- make_test_connection()
 
-  expect_error(
-    get_umar_unit_id("TOTALLY_UNKNOWN_UNIT", con_test),
-    "not mapped.*Add to data-raw/eurostat_unit_map.R"
-  )
+    expect_error(
+      get_umar_unit_id("TOTALLY_UNKNOWN_UNIT", con_test),
+      "not mapped.*Add to data-raw/eurostat_unit_map.R"
+    )
+  })
 })
 
 test_that("get_umar_unit_id prefers explicit mapping over pattern matching", {
@@ -308,8 +312,6 @@ test_that("expand_to_level_codes creates all combinations", {
     expect_equal(nrow(result), expected_rows)
   })
 })
-
-
 
 test_that("expand_to_series_titles returns correct structure", {
   dittodb::with_mock_db({
