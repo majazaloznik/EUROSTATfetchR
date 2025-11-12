@@ -8,7 +8,7 @@
 A data frame with [193] rows and [16] variables:
 \describe{
   \item{eurostat_unit}{unit code on Eurostat}
-  \item{unar_unit}{unit code in our database}
+  \item{umar_unit}{unit code in our database}
 }
 }
 \usage{

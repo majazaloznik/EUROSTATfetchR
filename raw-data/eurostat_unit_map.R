@@ -23,7 +23,13 @@ eurostat_unit_map <- tibble::tribble(
   "PCH_Q4_SCA", "%",
   "PC_GDP", "%",
   "TRD_VAL_SCA", "mio eur",
-  "PC_ACT", "%"
+  "PC_ACT", "%",
+  "PCH_PRE_PERS_SCA", "%",
+  "PCH_SM_PER_SCA", "%",
+  "PCH_PRE", "%",
+  "PCH_SM", "%",
+  "PCH_M1_NSA", "%",
+  "PCH_M1_SCA", "%"
 )
 
 # eurostat_unit_dictionary <- eurostat::get_eurostat_dic("unit")
