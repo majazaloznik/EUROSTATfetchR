@@ -381,3 +381,147 @@ test_that("expand_to_series_titles uses level_text not level_value", {
     expect_true(any(grepl("[a-z]{4,}", result$name_long, ignore.case = TRUE)))
   })
 })
+
+test_that("format_period_id handles annual intervals", {
+  dates <- as.Date(c("2023-01-15", "2024-06-30", "2025-12-31"))
+
+  result <- format_period_id(dates, "A")
+
+  expect_equal(result, c("2023", "2024", "2025"))
+  expect_type(result, "character")
+})
+
+test_that("format_period_id handles monthly intervals", {
+  dates <- as.Date(c("2023-01-15", "2023-02-28", "2023-12-31"))
+
+  result <- format_period_id(dates, "M")
+
+  expect_equal(result, c("2023M01", "2023M02", "2023M12"))
+  expect_type(result, "character")
+})
+
+test_that("format_period_id handles quarterly intervals", {
+  dates <- as.Date(c("2023-01-15", "2023-04-01", "2023-07-15", "2023-10-31"))
+
+  result <- format_period_id(dates, "Q")
+
+  expect_equal(result, c("2023Q1", "2023Q2", "2023Q3", "2023Q4"))
+  expect_type(result, "character")
+})
+
+test_that("format_period_id correctly assigns quarters", {
+  # Test all months to ensure correct quarter assignment
+  dates <- as.Date(paste0("2023-", sprintf("%02d", 1:12), "-15"))
+
+  result <- format_period_id(dates, "Q")
+
+  expected <- c("2023Q1", "2023Q1", "2023Q1",  # Jan-Mar
+                "2023Q2", "2023Q2", "2023Q2",  # Apr-Jun
+                "2023Q3", "2023Q3", "2023Q3",  # Jul-Sep
+                "2023Q4", "2023Q4", "2023Q4")  # Oct-Dec
+
+  expect_equal(result, expected)
+})
+
+test_that("format_period_id handles single date", {
+  date <- as.Date("2023-06-15")
+
+  expect_equal(format_period_id(date, "A"), "2023")
+  expect_equal(format_period_id(date, "M"), "2023M06")
+  expect_equal(format_period_id(date, "Q"), "2023Q2")
+})
+
+test_that("format_period_id handles character date input", {
+  # Function converts to Date, so should handle character
+  dates <- c("2023-01-15", "2023-12-31")
+
+  result_m <- format_period_id(dates, "M")
+  result_q <- format_period_id(dates, "Q")
+  result_a <- format_period_id(dates, "A")
+
+  expect_equal(result_m, c("2023M01", "2023M12"))
+  expect_equal(result_q, c("2023Q1", "2023Q4"))
+  expect_equal(result_a, c("2023", "2023"))
+})
+
+test_that("format_period_id preserves vector length", {
+  dates <- as.Date(c("2023-01-01", "2023-06-15", "2024-12-31"))
+
+  expect_length(format_period_id(dates, "A"), 3)
+  expect_length(format_period_id(dates, "M"), 3)
+  expect_length(format_period_id(dates, "Q"), 3)
+})
+
+test_that("format_period_id handles edge case months for quarters", {
+  # Test first and last day of each quarter
+  dates <- as.Date(c("2023-01-01", "2023-03-31",  # Q1
+                     "2023-04-01", "2023-06-30",  # Q2
+                     "2023-07-01", "2023-09-30",  # Q3
+                     "2023-10-01", "2023-12-31")) # Q4
+
+  result <- format_period_id(dates, "Q")
+
+  expected <- c("2023Q1", "2023Q1",
+                "2023Q2", "2023Q2",
+                "2023Q3", "2023Q3",
+                "2023Q4", "2023Q4")
+
+  expect_equal(result, expected)
+})
+
+test_that("format_period_id handles leap year February", {
+  dates <- as.Date(c("2024-02-29", "2023-02-28"))
+
+  result <- format_period_id(dates, "M")
+
+  expect_equal(result, c("2024M02", "2023M02"))
+})
+
+test_that("format_period_id errors on unsupported interval", {
+  date <- as.Date("2023-01-15")
+
+  expect_error(
+    format_period_id(date, "D"),
+    "Unsupported interval: D"
+  )
+
+  expect_error(
+    format_period_id(date, "W"),
+    "Unsupported interval: W"
+  )
+
+  expect_error(
+    format_period_id(date, "X"),
+    "Unsupported interval"
+  )
+})
+
+test_that("format_period_id handles empty input", {
+  dates <- as.Date(character(0))
+
+  expect_equal(format_period_id(dates, "A"), character(0))
+  expect_equal(format_period_id(dates, "M"), character(0))
+  expect_equal(format_period_id(dates, "Q"), character(0))
+})
+
+test_that("format_period_id pads months with leading zeros", {
+  dates <- as.Date(c("2023-01-01", "2023-09-01"))
+
+  result <- format_period_id(dates, "M")
+
+  # Should have leading zero for single-digit months
+  expect_equal(result, c("2023M01", "2023M09"))
+  expect_true(all(nchar(result) == 7))  # YYYYMNN format
+})
+
+test_that("format_period_id handles different years correctly", {
+  dates <- as.Date(c("2020-06-15", "2021-06-15", "2022-06-15", "2023-06-15"))
+
+  result_m <- format_period_id(dates, "M")
+  result_q <- format_period_id(dates, "Q")
+  result_a <- format_period_id(dates, "A")
+
+  expect_equal(result_m, c("2020M06", "2021M06", "2022M06", "2023M06"))
+  expect_equal(result_q, c("2020Q2", "2021Q2", "2022Q2", "2023Q2"))
+  expect_equal(result_a, c("2020", "2021", "2022", "2023"))
+})

@@ -192,3 +192,38 @@ expand_to_series_titles <- function (tbl_id, con, schema = "platform") {
             stringsAsFactors = FALSE)) |>
     tidyr::unite("name_long", dplyr::everything(), sep = " -- ")
 }
+
+
+#' Helper function to format period IDs
+#'
+#' converts date to period id. (originally from DESEZONIRANJEfetchR)
+#'
+#' @param dates date
+#' @param interval M or Q or A
+#'
+#' @keywords internal
+format_period_id <- function(dates, interval) {
+  dates <- as.Date(dates)
+  year <- format(dates, "%Y")
+
+  # Handle empty input
+  if (length(dates) == 0) {
+    return(character(0))
+  }
+  if (interval == "A") {
+    # Annual:
+    year
+  } else if (interval == "M") {
+    # Monthly: 2025M08
+    month <- format(dates, "%m")
+    paste0(year, "M", month)
+  } else if (interval == "Q") {
+    # Quarterly: 2025Q2
+    quarter <- as.integer(format(dates, "%m"))
+    quarter <- ceiling(quarter / 3)
+    paste0(year, "Q", quarter)
+  } else {
+    stop("Unsupported interval: ", interval)
+  }
+}
+

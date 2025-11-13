@@ -206,3 +206,15 @@ prepare_vintage_table("teimf040", con_test, toc)
 prepare_vintage_table("teiet215", con_test, toc)
 prepare_vintage_table("agr_r_animal", con_test, toc)
 dittodb::stop_db_capturing()
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+x <- prepare_eurostat_data_for_insert("agr_r_animal", con_test, "platform")
+dittodb::stop_db_capturing()
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+x <- EUROSTAT_import_data_points("teina200", con_test, "platform")
+dittodb::stop_db_capturing()
+

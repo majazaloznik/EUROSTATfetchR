@@ -1,0 +1,11 @@
+structure(list(interval_id = c("M", "M", "M", "M", "M"), int_rt = c("IRT_M3", 
+"IRT_M3", "IRT_M3", "IRT_M3", "IRT_M3"), geo = c("CZ", "CZ", 
+"CZ", "CZ", "CZ"), flag = c(NA_character_, NA_character_, NA_character_, 
+NA_character_, NA_character_), TIME_PERIOD = structure(c(0x1.38fp+14, 
+0x1.3968p+14, 0x1.39e4p+14, 0x1.3a6p+14, 0x1.3adp+14), class = "Date"), 
+    value = c(0x1.f99999999999ap+1, 0x1.f47ae147ae148p+1, 0x1.f0a3d70a3d70ap+1, 
+    0x1.e147ae147ae14p+1, 0x1.dc28f5c28f5c3p+1), time = c("2024M11", 
+    "2024M12", "2025M01", "2025M02", "2025M03"), series_id = c(NA_integer_, 
+    NA_integer_, NA_integer_, NA_integer_, NA_integer_), vintage_id = c(NA_integer_, 
+    NA_integer_, NA_integer_, NA_integer_, NA_integer_)), class = "data.frame", row.names = c(NA, 
+-5L))
