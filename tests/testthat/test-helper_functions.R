@@ -181,7 +181,7 @@ test_that("get_umar_unit_id auto-maps PC_ pattern to percentage", {
     # Test PC_ pattern
     expect_message(
       unit_id <- get_umar_unit_id("PC_GDP_PC", con_test),
-      "Auto-mapped 'PC_GDP_PC' → 'percentage'"
+      "Auto-mapped 'PC_GDP_PC' - > 'percentage'"
     )
     expect_type(unit_id, "integer")
 
@@ -199,7 +199,7 @@ test_that("get_umar_unit_id auto-maps PCH_ pattern to percentage", {
     # Test PCH_ pattern
     expect_message(
       unit_id <- get_umar_unit_id("PCH_M1", con_test),
-      "Auto-mapped 'PCH_M1' → 'percentage'"
+      "Auto-mapped 'PCH_M1' - > 'percentage'"
     )
     expect_type(unit_id, "integer")
   })
@@ -212,7 +212,7 @@ test_that("get_umar_unit_id auto-maps I## pattern to index", {
     # Test I## pattern (I followed by exactly 2 digits)
     expect_message(
       unit_id <- get_umar_unit_id("I19", con_test),
-      "Auto-mapped 'I19' → 'index'"
+      "Auto-mapped 'I19' - > 'index'"
     )
     expect_type(unit_id, "integer")
 
