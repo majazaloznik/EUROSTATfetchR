@@ -188,3 +188,21 @@ EUROSTAT_import_structure(con_test, "teiet215", source_id = 7, all_levels = TRUE
 # Then select minimal levels in the interactive prompt
 
 dittodb::stop_db_capturing()
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+prepare_series_table("teimf040", con_test)
+
+dittodb::stop_db_capturing()
+
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+
+prepare_vintage_table("teimf040", con_test, toc)
+prepare_vintage_table("teiet215", con_test, toc)
+prepare_vintage_table("agr_r_animal", con_test, toc)
+dittodb::stop_db_capturing()

@@ -268,6 +268,29 @@ test_that("prepare_series_table creates unique series codes", {
   })
 })
 
+# Alternative approach using local_mocked_bindings (testthat 3.0+)
+test_that("prepare_series_table handles user input for units", {
+  dittodb::with_mock_db({
+    con_test <- make_test_connection()
+
+    # Create a counter for sequential responses
+    responses <- rep("PC", 7)
+    counter <- 0
+
+    testthat::local_mocked_bindings(
+      readline = function(prompt) {
+        counter <<- counter + 1
+        responses[counter]
+      },
+      .package = "base"  # Specify that readline is from base package
+    )
+
+    result <- prepare_series_table("teimf040", con_test)
+
+    expect_s3_class(result, "data.frame")
+    expect_true(nrow(result) > 0)
+  })
+})
 
 test_that("prepare_series_levels_table returns correct structure", {
   dittodb::with_mock_db({
