@@ -145,7 +145,7 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "UMARimportR",
       "RemoteUsername": "majazaloznik",
-      "RemoteSha": "cc4643359418758d6a0f287fbbb034212533a951",
+      "RemoteSha": "58cc63ed3285fd4c6b5e1018df4c5dcfbed91d0c",
       "Requirements": [
         "DBI",
         "RPostgres",
@@ -153,7 +153,7 @@
         "purrr",
         "stringr"
       ],
-      "Hash": "736687a295d2d5c83b4e247d14526700"
+      "Hash": "2703bb716dfe8a4827ecba5bc1cbd13d"
     },
     "askpass": {
       "Package": "askpass",
