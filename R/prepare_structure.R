@@ -41,7 +41,7 @@ prepare_table_table <- function(code, toc, con, schema = "platform", keep_vintag
              name = unique(toc$title[toc$code == code]),
              source_id = source_id,
              url = NA,
-             notes = jsonlite::toJSON(list(), auto_unbox = TRUE),
+             notes = as.character(jsonlite::toJSON(list(), auto_unbox = TRUE)),
              keep_vintage = keep_vintage)
 }
 
