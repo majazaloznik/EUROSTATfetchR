@@ -20,7 +20,7 @@ prepare_vintage_table <- function(code, con, toc, schema = "platform"){
   # get metadata from eurostat
   published <- toc |>
     dplyr::filter(code == !!code) |>
-    dplyr::summarise(last.update.of.data = dplyr::first(`last update of data`)) |>
+    dplyr::summarise(last.update.of.data = dplyr::first(last.update.of.data)) |>
     dplyr::pull(last.update.of.data) |>
     as.Date(format = "%d.%m.%Y")
   last_published <- UMARaccessR::sql_get_last_publication_date_from_table_id(tbl_id, con, schema)

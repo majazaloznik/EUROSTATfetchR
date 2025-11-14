@@ -35,6 +35,8 @@ eurostat_unit_map <- tibble::tribble(
   "NAC", "usd"
 )
 
+toc <- eurostat::get_eurostat_toc()
+
 # eurostat_unit_dictionary <- eurostat::get_eurostat_dic("unit")
 # eurostat_indic_et_dictionary <- eurostat::get_eurostat_dic("indic_et")
 # eurostat_indic_dictionary <- eurostat::get_eurostat_dic("indic")
@@ -42,6 +44,6 @@ eurostat_unit_map <- tibble::tribble(
 # eurostat_indic_bt_dictionary <- eurostat::get_eurostat_dic("indic_bt")
 # eurostat_indic_nrg_dictionary <- eurostat::get_eurostat_dic("indic_nrg")
 
-usethis::use_data(eurostat_unit_map,
+usethis::use_data(eurostat_unit_map, toc,
                   internal = FALSE,
                   overwrite = TRUE)

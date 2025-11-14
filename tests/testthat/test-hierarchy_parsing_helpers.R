@@ -17,8 +17,6 @@ test_that("get_next_category_id returns correct next ID", {
 # Test for get_dataset_ancestors
 test_that("get_dataset_ancestors extracts correct hierarchy", {
   # This one doesn't need database mocking, just TOC data
-  toc <- eurostat::get_eurostat_toc()
-
   ancestors <- get_dataset_ancestors("agr_r_animal", toc)
 
   expect_s3_class(ancestors, "data.frame")
@@ -39,7 +37,6 @@ test_that("get_dataset_ancestors extracts correct hierarchy", {
 })
 
 test_that("get_dataset_ancestors fails for non-existent dataset", {
-  toc <- eurostat::get_eurostat_toc()
   expect_error(
     get_dataset_ancestors("fake_dataset_code", toc),
     "Dataset not found in TOC"

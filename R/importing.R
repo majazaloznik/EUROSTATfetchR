@@ -12,13 +12,6 @@
 EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platform",
                                       all_levels = FALSE, keep_vintage = FALSE) {
   message("Importing structure data: ", code, " into schema ", schema)
-
-  # get metadata from eurostat
-  toc <- readr::read_tsv(
-    "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en",
-    locale = readr::locale(encoding = "UTF-8"),
-    show_col_types = FALSE)
-
   # insert categories and category relationships
   ancestors <- get_dataset_ancestors(code, toc)
 
@@ -112,11 +105,6 @@ EUROSTAT_import_data_points <- function(code, con, schema = "platform") {
   message("Importing data points from: ", code, " into schema ", schema)
   # collect outputs from the functions into one result list
   result <- list()
-  # get metadata from eurostat
-  toc <- readr::read_tsv(
-    "https://ec.europa.eu/eurostat/api/dissemination/catalogue/toc/txt?lang=en",
-    locale = readr::locale(encoding = "UTF-8"),
-    show_col_types = FALSE)
   # Try to prepare  vintage table but catch any errors
   vintage_result <- tryCatch(
     expr = {list(

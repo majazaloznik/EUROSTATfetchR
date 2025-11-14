@@ -10,7 +10,6 @@ test_that("prepare source table", {
 test_that("prepare table table", {
   dittodb::with_mock_db({
     con_test <- make_test_connection()
-    toc <- eurostat::get_eurostat_toc()
     table_table <- prepare_table_table("agr_r_animal", toc,  con_test)
     expect_equal(nrow(table_table), 1)
     expect_equal(ncol(table_table), 6)
@@ -22,8 +21,6 @@ test_that("prepare table table", {
 test_that("prepare_category_table_table returns correct structure", {
   dittodb::with_mock_db({
     con_test <- make_test_connection()
-    toc <- eurostat::get_eurostat_toc()
-
     # Test dataset with multiple hierarchy paths (3 parent categories)
     result <- prepare_category_table_table("agr_r_animal", toc, con_test, source_id = 7)
 
@@ -43,8 +40,6 @@ test_that("prepare_category_table_table returns correct structure", {
 test_that("prepare_category_table_table handles single hierarchy dataset", {
   dittodb::with_mock_db({
     con_test <- make_test_connection()
-    toc <- eurostat::get_eurostat_toc()
-
     # Test dataset with single hierarchy path
     result <- prepare_category_table_table("teicp000", toc, con_test, source_id = 7)
 
