@@ -13,6 +13,7 @@ EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platfo
                                       all_levels = FALSE, keep_vintage = FALSE) {
   message("Importing structure data: ", code, " into schema ", schema)
   # insert categories and category relationships
+  toc <- eurostat::get_eurostat_toc()
   ancestors <- get_dataset_ancestors(code, toc)
 
   # Create list to store all results
@@ -105,6 +106,7 @@ EUROSTAT_import_data_points <- function(code, con, schema = "platform") {
   message("Importing data points from: ", code, " into schema ", schema)
   # collect outputs from the functions into one result list
   result <- list()
+  toc <- eurostat::get_eurostat_toc()
   # Try to prepare  vintage table but catch any errors
   vintage_result <- tryCatch(
     expr = {list(
