@@ -525,3 +525,8 @@ test_that("format_period_id handles different years correctly", {
   expect_equal(result_q, c("2020Q2", "2021Q2", "2022Q2", "2023Q2"))
   expect_equal(result_a, c("2020", "2021", "2022", "2023"))
 })
+
+test_that("get_eurostat_calendar works", {
+  x <- get_eurostat_calendar("2025-11-01", "2025-12-01")
+expect_equal(dim(x), c(160,12))
+})
