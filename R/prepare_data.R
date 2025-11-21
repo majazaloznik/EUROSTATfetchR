@@ -45,6 +45,7 @@ prepare_vintage_table <- function(code, con, toc, schema = "platform"){
 #' @param code Character, Eurostat dataset code
 #' @param con Database connection
 #' @param schema the schema to use for the connection, default is "platform"
+#' @param use_cache logical, set to true for testing, false in production
 #'
 #' @return A list containing:
 #'  - data: The processed data frame
@@ -53,10 +54,10 @@ prepare_vintage_table <- function(code, con, toc, schema = "platform"){
 #'  - dimension_ids: The non-time dimension IDs
 #'  - dimension_names: The names of the dimensions
 #' @export
-prepare_eurostat_data_for_insert <- function(code, con, schema = "platform") {
+prepare_eurostat_data_for_insert <- function(code, con, schema = "platform", use_cache = FALSE) {
   # Get raw data
   tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code, schema)
-  raw <- eurostat::get_eurostat(code, keepFlags = TRUE)
+  raw <- eurostat::get_eurostat(code, keepFlags = TRUE, cache = FALSE)
 
   # remove levels that we are not tracking
   dim_levels_in_db <- UMARaccessR::sql_get_dimension_levels_from_table_id(tbl_id, con, schema)

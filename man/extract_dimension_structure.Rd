@@ -4,10 +4,12 @@
 \alias{extract_dimension_structure}
 \title{Extract dimension structure from Eurostat dataset}
 \usage{
-extract_dimension_structure(code)
+extract_dimension_structure(code, use_cache = FALSE)
 }
 \arguments{
 \item{code}{the original Eurostat code (e.g. agr_r_animal)}
+
+\item{use_cache}{logical, set to true for testing, false in production}
 }
 \value{
 a list with three elements:

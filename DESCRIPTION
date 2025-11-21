@@ -23,6 +23,7 @@ Imports:
     dbplyr,
     dplyr,
     eurostat,
+    httr,
     jsonlite,
     purrr,
     RPostgres,

@@ -6,6 +6,7 @@
 #' are excluded as they are constants rather than true dimensions.
 #'
 #' @param code the original Eurostat code (e.g. agr_r_animal)
+#' @param use_cache logical, set to true for testing, false in production
 #'
 #' @return a list with three elements:
 #'   - `dimensions`: a named list where each element is a dataframe with columns
@@ -15,9 +16,9 @@
 #'   - `unit_mapping`: a dataframe with dimension level columns plus a `unit` column,
 #'     showing which unit applies to each dimension combination
 #' @export
-extract_dimension_structure <- function(code) {
+extract_dimension_structure <- function(code, use_cache = FALSE) {
   # Download data
-  data <- eurostat::get_eurostat(code)
+  data <- eurostat::get_eurostat(code, cache = use_cache)
 
   # Check freq column exists
   if (!"freq" %in% names(data)) {
@@ -290,7 +291,7 @@ format_period_id <- function(dates, interval) {
 get_eurostat_calendar <- function(start_date, end_date) {
 
   tryCatch({
-    base_url <- "https://ec.europa.eu/eurostat/o/calendars/events/son"
+    base_url <- "https://ec.europa.eu/eurostat/o/calendars/eventsJson"
 
     # Format dates as ISO 8601 with timezone
     start_str <- format(as.POSIXct(start_date), "%Y-%m-%dT00:00:00.000Z", tz = "UTC")

@@ -4,7 +4,12 @@
 \alias{prepare_eurostat_data_for_insert}
 \title{Prepare EUROSTAT data table for insertion}
 \usage{
-prepare_eurostat_data_for_insert(code, con, schema = "platform")
+prepare_eurostat_data_for_insert(
+  code,
+  con,
+  schema = "platform",
+  use_cache = FALSE
+)
 }
 \arguments{
 \item{code}{Character, Eurostat dataset code}
@@ -12,6 +17,8 @@ prepare_eurostat_data_for_insert(code, con, schema = "platform")
 \item{con}{Database connection}
 
 \item{schema}{the schema to use for the connection, default is "platform"}
+
+\item{use_cache}{logical, set to true for testing, false in production}
 }
 \value{
 A list containing:

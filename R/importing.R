@@ -7,10 +7,11 @@
 #' @param all_levels logical whether to let user use dimension selector, default
 #' is FALSE, which automatically selects all levels in all dimensions
 #' @param keep_vintage logical indicating whether to keep vintages, defaults to F
+#' @param use_cache logical, set to true for testing, false in production
 #'
 #' @export
 EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platform",
-                                      all_levels = FALSE, keep_vintage = FALSE) {
+                                      all_levels = FALSE, keep_vintage = FALSE, use_cache = FALSE) {
   message("Importing structure data: ", code, " into schema ", schema)
   # insert categories and category relationships
   toc <- eurostat::get_eurostat_toc()
@@ -55,7 +56,7 @@ EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platfo
     con, category_table_table, schema)
   message("Category table insert: ", insert_results$category_table$count, " rows")
   # extract dimension data
-  dim_struct <- extract_dimension_structure(code)
+  dim_struct <- extract_dimension_structure(code, use_cache)
   # prepare and insert table dimension table
   table_dimension_table <- prepare_table_dimensions_table(code, dim_struct$dimensions, con, schema)
   insert_results$table_dimensions <- UMARimportR::insert_new_table_dimensions(
@@ -99,10 +100,11 @@ EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platfo
 #' @param code Eurostat code name of the table
 #' @param con Database connection
 #' @param schema Schema name
+#' @param use_cache logical, set to true for testing, false in production
 #'
 #' @return Insertion results (invisibly)
 #' @export
-EUROSTAT_import_data_points <- function(code, con, schema = "platform") {
+EUROSTAT_import_data_points <- function(code, con, schema = "platform", use_cache = FALSE) {
   message("Importing data points from: ", code, " into schema ", schema)
   # collect outputs from the functions into one result list
   result <- list()
@@ -125,7 +127,7 @@ EUROSTAT_import_data_points <- function(code, con, schema = "platform") {
     # import vintages
     result$vintages <- UMARimportR::insert_new_vintage(con, vintage_result$vintages, schema)
     # Prepare data in eurostat-specific way
-    prep_data <- prepare_eurostat_data_for_insert(code, con, schema)
+    prep_data <- prepare_eurostat_data_for_insert(code, con, schema, use_cache)
     # Insert the prepared data
     result$data <- UMARimportR::insert_prepared_data_points(prep_data, con, schema)
   } else {

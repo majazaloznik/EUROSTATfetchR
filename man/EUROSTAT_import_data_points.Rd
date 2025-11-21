@@ -4,7 +4,7 @@
 \alias{EUROSTAT_import_data_points}
 \title{Insert data points from BS}
 \usage{
-EUROSTAT_import_data_points(code, con, schema = "platform")
+EUROSTAT_import_data_points(code, con, schema = "platform", use_cache = FALSE)
 }
 \arguments{
 \item{code}{Eurostat code name of the table}
@@ -12,6 +12,8 @@ EUROSTAT_import_data_points(code, con, schema = "platform")
 \item{con}{Database connection}
 
 \item{schema}{Schema name}
+
+\item{use_cache}{logical, set to true for testing, false in production}
 }
 \value{
 Insertion results (invisibly)

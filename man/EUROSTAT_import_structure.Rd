@@ -10,7 +10,8 @@ EUROSTAT_import_structure(
   source_id = 7,
   schema = "platform",
   all_levels = FALSE,
-  keep_vintage = FALSE
+  keep_vintage = FALSE,
+  use_cache = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ EUROSTAT_import_structure(
 is FALSE, which automatically selects all levels in all dimensions}
 
 \item{keep_vintage}{logical indicating whether to keep vintages, defaults to F}
+
+\item{use_cache}{logical, set to true for testing, false in production}
 }
 \description{
 Import structure for a single dataset (categories, relationships, and table info)
