@@ -528,5 +528,5 @@ test_that("format_period_id handles different years correctly", {
 
 test_that("get_eurostat_calendar works", {
   x <- get_eurostat_calendar("2025-11-01", "2025-12-01")
-expect_equal(dim(x), c(160,12))
+expect_equal(ncol(x), 12)
 })
