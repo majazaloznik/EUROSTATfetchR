@@ -1,5 +1,5 @@
-devtools::install_github("majazaloznik/UMARaccessR")
-devtools::install_github("majazaloznik/UMARimportR")
+# devtools::install_github("majazaloznik/UMARaccessR")
+# devtools::install_github("majazaloznik/UMARimportR")
 source("tests/testthat/helper-connection.R")
 
 # Capture fixture for get_next_category_id with existing categories
@@ -215,6 +215,6 @@ dittodb::stop_db_capturing()
 
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
-x <- EUROSTAT_import_data_points("teina200", con_test, "platform")
+x <- EUROSTAT_import_data_points("teimf040", con_test, "platform")
 dittodb::stop_db_capturing()
 

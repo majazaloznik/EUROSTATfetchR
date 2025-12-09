@@ -85,8 +85,6 @@ EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platfo
 }
 
 
-
-
 #' Insert data points from BS
 #'
 #' Function to prepare and insert BS data points. The function first prepares
@@ -105,7 +103,9 @@ EUROSTAT_import_structure <- function(con, code, source_id = 7, schema = "platfo
 #' @return Insertion results (invisibly)
 #' @export
 EUROSTAT_import_data_points <- function(code, con, schema = "platform", use_cache = FALSE) {
-  message("Importing data points from: ", code, " into schema ", schema)
+  message("\n=================================================================")
+  message("Importing data points from: ", code)
+  message("=================================================================")
   # collect outputs from the functions into one result list
   result <- list()
   toc <- eurostat::get_eurostat_toc()
