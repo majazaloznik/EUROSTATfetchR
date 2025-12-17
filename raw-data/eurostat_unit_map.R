@@ -33,7 +33,8 @@ eurostat_unit_map <- tibble::tribble(
   "I21_NSA", "%",
   "BS-ESI-I", "ravnotežje v odstotnih točkah",
   "NAC", "usd",
-  "RCH_A", "%"
+  "RCH_A", "%",
+  "RCH_MV12MAVR", "%"
 )
 
 
