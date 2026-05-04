@@ -37,7 +37,10 @@ eurostat_unit_map <- tibble::tribble(
   "RCH_MV12MAVR", "%",
   "I21_SCA", "indeks",
   "BS-CCI-BAL", "ravnotežje v odstotnih točkah",
-  "BS-CSMCI-BAL", "ravnotežje v odstotnih točkah"
+  "BS-CSMCI-BAL", "ravnotežje v odstotnih točkah",
+  "BS-ICI-BAL","ravnotežje v odstotnih točkah",
+  "BS-RCI-BAL","ravnotežje v odstotnih točkah",
+  "BS-SCI-BAL","ravnotežje v odstotnih točkah"
 )
 
 
