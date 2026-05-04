@@ -35,7 +35,8 @@ eurostat_unit_map <- tibble::tribble(
   "NAC", "usd",
   "RCH_A", "%",
   "RCH_MV12MAVR", "%",
-  "I21_SCA", "indeks"
+  "I21_SCA", "indeks",
+  "BS-CCI-BAL", "ravnotežje v odstotnih točkah"
 )
 
 
