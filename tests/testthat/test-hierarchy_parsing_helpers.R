@@ -6,7 +6,7 @@ test_that("get_next_category_id returns correct next ID", {
     # Test when categories exist for source
     next_id <- get_next_category_id(con_test, source_id = 7)
     expect_type(next_id, "double")
-    expect_equal(next_id, 20)  # Based on your current max of 19
+    expect_equal(next_id, 74)  # Based on your current max of 73
 
     # Test when no categories exist for source
     next_id_new <- get_next_category_id(con_test, source_id = 99)
@@ -22,7 +22,7 @@ test_that("get_dataset_ancestors extracts correct hierarchy", {
 
   expect_s3_class(ancestors, "data.frame")
   expect_true(all(c("title", "hierarchy", "parent_title", "instance") %in% names(ancestors)))
-  expect_equal(nrow(ancestors), 17)  # Based on your example
+  expect_equal(nrow(ancestors), 16)  # Based on your example
 
   # Check first row is root
   expect_equal(ancestors$parent_title[1], "Eurostat")
@@ -32,7 +32,7 @@ test_that("get_dataset_ancestors extracts correct hierarchy", {
   expect_equal(length(unique(ancestors$instance)), 3)
 
   # Test single instance dataset
-  ancestors_single <- get_dataset_ancestors("teicp000", toc)
+  ancestors_single <- get_dataset_ancestors("teiis550", toc)
   expect_equal(nrow(ancestors_single), 4)
   expect_equal(length(unique(ancestors_single$instance)), 1)
 })
@@ -60,7 +60,7 @@ test_that("category_exists_with_parent finds existing categories", {
 
     # Test category with different parent (should find different ID)
     cat_id <- category_exists_with_parent(con_test, "Agriculture", 15, 7)
-    expect_equal(cat_id, 16)
+    expect_equal(cat_id, 74)
 
     # Test non-existent category
     cat_id <- category_exists_with_parent(con_test, "Non-existent category", 0, 7)

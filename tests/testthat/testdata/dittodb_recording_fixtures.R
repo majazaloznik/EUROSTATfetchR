@@ -28,7 +28,7 @@ stop_db_capturing()
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
 EUROSTAT_import_structure(con_test, "agr_r_animal",  source_id = 7)
-EUROSTAT_import_structure(con_test, "teicp000", source_id = 7)
+EUROSTAT_import_structure(con_test, "teiet215", source_id = 7, all_levels = TRUE)
 EUROSTAT_import_structure(con_test, "teicp000", source_id = 7)
 dittodb::stop_db_capturing()
 
@@ -184,16 +184,17 @@ dittodb::stop_db_capturing()
 
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
-EUROSTAT_import_structure(con_test, "teiet215", source_id = 7, all_levels = TRUE)
+EUROSTAT_import_structure(con_test, "agr_r_animal", source_id = 7, all_levels = TRUE)
 # Then select minimal levels in the interactive prompt
 
 dittodb::stop_db_capturing()
 
+result <- prepare_category_table_table("teicp000", toc, con_test, source_id = 7)
 
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
 
-prepare_series_table("teimf040", con_test)
+result <- prepare_vintage_table("agr_r_animal", con_test, toc)
 
 dittodb::stop_db_capturing()
 
@@ -215,6 +216,6 @@ dittodb::stop_db_capturing()
 
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
-x <- EUROSTAT_import_data_points("teimf040", con_test, "platform")
+result <- EUROSTAT_import_data_points("teicp270", con_test, schema = "platform")
 dittodb::stop_db_capturing()
 

@@ -1,2 +1,2 @@
-structure(list(published = structure(numeric(0), class = c("POSIXct", 
-"POSIXt"), tzone = "UTC")), row.names = c(NA, 0L), class = "data.frame")
+structure(list(published = structure(0x1.a3c0d6p+30, class = c("POSIXct", 
+"POSIXt"), tzone = "UTC")), row.names = c(NA, -1L), class = "data.frame")

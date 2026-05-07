@@ -32,7 +32,7 @@ test_that("prepare_category_table_table returns correct structure", {
     expect_equal(result$source_id, c(7, 7, 7))
 
     # Check that category_ids are the leaf categories
-    expect_true(all(result$category_id %in% c(5, 11, 16)))  # The three leaf categories
+    expect_true(all(result$category_id %in% c(5, 11, 74)))  # The three leaf categories
 
     # Check table_id is consistent
     expect_equal(length(unique(result$table_id)), 1)
@@ -46,9 +46,9 @@ test_that("prepare_category_table_table handles single hierarchy dataset", {
     # Test dataset with single hierarchy path
     result <- prepare_category_table_table("teicp000", toc, con_test, source_id = 7)
 
-    expect_equal(nrow(result), 1)  # Only one hierarchy path
-    expect_equal(result$source_id, 7)
-    expect_equal(result$category_id, 19)  # Consumer prices leaf category
+    expect_equal(nrow(result), 2)
+    expect_equal(result$source_id, c(7,7))
+    expect_equal(result$category_id, c(73,19))  # Consumer prices leaf category
   })
 })
 

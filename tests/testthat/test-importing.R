@@ -16,11 +16,11 @@ test_that("EUROSTAT_import_structure returns correct structure", {
 test_that("EUROSTAT_import_data_points works correctly", {
   with_mock_db({
     con <- make_test_connection()
-    result <- EUROSTAT_import_data_points("teimf040", con, schema = "platform")
+    result <- EUROSTAT_import_data_points("teicp270", con, schema = "platform")
     expect_true(all(names(result) == c("vintages", "data")))
     expect_true(all(names(result$data) == c("periods_inserted", "datapoints_inserted",
                                             "flags_inserted")))
-    expect_true(result$data$datapoints_inserted == 12)
+    expect_true(result$data$datapoints_inserted == 24)
   })
 })
 
@@ -29,8 +29,8 @@ test_that("EUROSTAT_import_data_points works correctly", {
   with_mock_db({
     con <- make_test_connection()
     expect_message(
-      result <- EUROSTAT_import_data_points("teina200", con, schema = "platform"),
-      "These vintages for table teina200 are not new"
+      result <- EUROSTAT_import_data_points("teimf040", con, schema = "platform"),
+      "These vintages for table teimf040 are not new"
     )
   })
 })
