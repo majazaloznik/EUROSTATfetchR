@@ -24,7 +24,7 @@ test_that("extract_dimension_structure returns correct structure", {
 
 test_that("extract_dimension_structure excludes constant dimensions", {
   # Test with a dataset that might have constant dimensions
-  dim_structure <- extract_dimension_structure("agr_r_animal")
+  dim_structure <- extract_dimension_structure("apro_mt_ls_r")
 
   # All dimensions should have multiple values
   n_levels <- purrr::map_int(dim_structure$dimensions, nrow)

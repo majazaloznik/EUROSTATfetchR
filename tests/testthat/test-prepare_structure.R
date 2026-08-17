@@ -11,7 +11,7 @@ test_that("prepare table table", {
   dittodb::with_mock_db({
     con_test <- make_test_connection()
     toc <- eurostat::get_eurostat_toc()
-    table_table <- prepare_table_table("agr_r_animal", toc,  con_test)
+    table_table <- prepare_table_table("apro_mt_ls_r", toc,  con_test)
     expect_equal(nrow(table_table), 1)
     expect_equal(ncol(table_table), 6)
     expect_true(all(names(table_table) %in%
@@ -24,7 +24,7 @@ test_that("prepare_category_table_table returns correct structure", {
     con_test <- make_test_connection()
     toc <- eurostat::get_eurostat_toc()
     # Test dataset with multiple hierarchy paths (3 parent categories)
-    result <- prepare_category_table_table("agr_r_animal", toc, con_test, source_id = 7)
+    result <- prepare_category_table_table("apro_mt_ls_r", toc, con_test, source_id = 7)
 
     expect_s3_class(result, "data.frame")
     expect_true(all(c("category_id", "table_id", "source_id") %in% names(result)))
@@ -427,7 +427,7 @@ test_that("prepare_series_levels_table handles multi-dimension tables", {
     con_test <- make_test_connection()
 
     # Table with multiple dimensions
-    result <- prepare_series_levels_table("agr_r_animal", con_test)
+    result <- prepare_series_levels_table("apro_mt_ls_r", con_test)
 
     # Should have multiple tab_dim_ids represented
     expect_true(length(unique(result$tab_dim_id)) > 1)

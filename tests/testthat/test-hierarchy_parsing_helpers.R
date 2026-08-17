@@ -18,7 +18,7 @@ test_that("get_next_category_id returns correct next ID", {
 test_that("get_dataset_ancestors extracts correct hierarchy", {
   # This one doesn't need database mocking, just TOC data
   toc <- eurostat::get_eurostat_toc()
-  ancestors <- get_dataset_ancestors("agr_r_animal", toc)
+  ancestors <- get_dataset_ancestors("apro_mt_ls_r", toc)
 
   expect_s3_class(ancestors, "data.frame")
   expect_true(all(c("title", "hierarchy", "parent_title", "instance") %in% names(ancestors)))

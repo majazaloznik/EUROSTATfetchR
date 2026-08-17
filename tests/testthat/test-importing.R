@@ -20,7 +20,7 @@ test_that("EUROSTAT_import_data_points works correctly", {
     expect_true(all(names(result) == c("vintages", "data")))
     expect_true(all(names(result$data) == c("periods_inserted", "datapoints_inserted",
                                             "flags_inserted")))
-    expect_true(result$data$datapoints_inserted == 24)
+    expect_true(result$data$datapoints_inserted == 12)
   })
 })
 

@@ -5,7 +5,7 @@
 #' mapping for each dimension combination. Dimensions with only one unique value
 #' are excluded as they are constants rather than true dimensions.
 #'
-#' @param code the original Eurostat code (e.g. agr_r_animal)
+#' @param code the original Eurostat code (e.g. apro_mt_ls_r)
 #' @param use_cache logical, set to true for testing, false in production
 #'
 #' @return a list with three elements:

@@ -7,7 +7,7 @@
 extract_dimension_structure(code, use_cache = FALSE)
 }
 \arguments{
-\item{code}{the original Eurostat code (e.g. agr_r_animal)}
+\item{code}{the original Eurostat code (e.g. apro_mt_ls_r)}
 
 \item{use_cache}{logical, set to true for testing, false in production}
 }

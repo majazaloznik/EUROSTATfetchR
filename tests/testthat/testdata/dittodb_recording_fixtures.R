@@ -1,5 +1,5 @@
-# devtools::install_github("majazaloznik/UMARaccessR")
-# devtools::install_github("majazaloznik/UMARimportR")
+# pak::pak("majazaloznik/UMARaccessR")
+# pak::pak("majazaloznik/UMARimportR")
 source("tests/testthat/helper-connection.R")
 
 # Capture fixture for get_next_category_id with existing categories
@@ -27,7 +27,7 @@ stop_db_capturing()
 
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
-EUROSTAT_import_structure(con_test, "agr_r_animal",  source_id = 7)
+EUROSTAT_import_structure(con_test, "apro_mt_ls_r",  source_id = 7)
 EUROSTAT_import_structure(con_test, "teiet215", source_id = 7, all_levels = TRUE)
 EUROSTAT_import_structure(con_test, "teicp000", source_id = 7)
 dittodb::stop_db_capturing()
@@ -46,8 +46,8 @@ dittodb::stop_db_capturing()
 
 start_db_capturing()
 con_test <- make_test_connection()
-toc <- get_eurostat_toc()
-table_table <- prepare_table_table("agr_r_animal", toc, con_test)
+toc <- eurostat::get_eurostat_toc()
+table_table <- prepare_table_table("apro_mt_ls_r", toc, con_test)
 stop_db_capturing()
 
 
@@ -56,7 +56,7 @@ con_test <- make_test_connection()
 toc <- eurostat::get_eurostat_toc()
 
 # Now capture the prepare_category_table_table calls
-prepare_category_table_table("agr_r_animal", toc, con_test, source_id = 7)
+prepare_category_table_table("apro_mt_ls_r", toc, con_test, source_id = 7)
 prepare_category_table_table("teicp000", toc, con_test, source_id = 7)
 dittodb::stop_db_capturing()
 
@@ -66,7 +66,7 @@ con_test <- make_test_connection()
 
 # Prepare dimension structure once to use for both functions
 dim_structure_teicp <- extract_dimension_structure("teicp000")
-dim_structure_agr <- extract_dimension_structure("agr_r_animal")
+dim_structure_agr <- extract_dimension_structure("apro_mt_ls_r")
 
 # Mock dim_structure for controlled testing
 dim_structure_mock <- list(
@@ -122,7 +122,7 @@ con_test <- make_test_connection()
 
 # Get table IDs
 tbl_id_teicp <- UMARaccessR::sql_get_table_id_from_table_code(con_test, "teicp000", "platform")
-tbl_id_agr <- UMARaccessR::sql_get_table_id_from_table_code(con_test, "agr_r_animal", "platform")
+tbl_id_agr <- UMARaccessR::sql_get_table_id_from_table_code(con_test, "apro_mt_ls_r", "platform")
 
 # Capture expand_to_level_codes
 EUROSTATfetchR:::expand_to_level_codes(tbl_id_teicp, con_test)
@@ -161,14 +161,14 @@ con_test <- make_test_connection()
 prepare_series_levels_table("teicp000", con_test)
 
 # Multi-dimension table
-prepare_series_levels_table("agr_r_animal", con_test)
+prepare_series_levels_table("apro_mt_ls_r", con_test)
 
 # Table with indicator dimension
 prepare_series_levels_table("ext_lt_introeu27_2020", con_test)
 
 # Also need series table queries for cross-referencing
 prepare_series_table("teicp000", con_test)
-prepare_series_table("agr_r_animal", con_test)
+prepare_series_table("apro_mt_ls_r", con_test)
 
 dittodb::stop_db_capturing()
 
@@ -182,19 +182,14 @@ series_ids_from_db <- UMARaccessR::sql_get_series_ids_from_table_id(tbl_id, con_
 dittodb::stop_db_capturing()
 
 
-dittodb::start_db_capturing()
-con_test <- make_test_connection()
-EUROSTAT_import_structure(con_test, "agr_r_animal", source_id = 7, all_levels = TRUE)
-# Then select minimal levels in the interactive prompt
 
-dittodb::stop_db_capturing()
 
 result <- prepare_category_table_table("teicp000", toc, con_test, source_id = 7)
 
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
 
-result <- prepare_vintage_table("agr_r_animal", con_test, toc)
+result <- prepare_vintage_table("apro_mt_ls_r", con_test, toc)
 
 dittodb::stop_db_capturing()
 
@@ -205,12 +200,12 @@ con_test <- make_test_connection()
 
 prepare_vintage_table("teimf040", con_test, toc)
 prepare_vintage_table("teiet215", con_test, toc)
-prepare_vintage_table("agr_r_animal", con_test, toc)
+prepare_vintage_table("apro_mt_ls_r", con_test, toc)
 dittodb::stop_db_capturing()
 
 dittodb::start_db_capturing()
 con_test <- make_test_connection()
-x <- prepare_eurostat_data_for_insert("agr_r_animal", con_test, "platform")
+x <- prepare_eurostat_data_for_insert("apro_mt_ls_r", con_test, "platform")
 dittodb::stop_db_capturing()
 
 
@@ -218,4 +213,11 @@ dittodb::start_db_capturing()
 con_test <- make_test_connection()
 result <- EUROSTAT_import_data_points("teicp270", con_test, schema = "platform")
 dittodb::stop_db_capturing()
+
+
+dittodb::start_db_capturing()
+con_test <- make_test_connection()
+result <- EUROSTAT_import_data_points("teimf040", con_test, schema = "platform")
+dittodb::stop_db_capturing()
+
 

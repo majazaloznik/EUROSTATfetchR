@@ -17,7 +17,6 @@ Suggests:
     dittodb,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.3.3
 Imports: 
     DBI,
     dbplyr,
@@ -36,3 +35,4 @@ Remotes:
     majazaloznik/UMARimportR
 Depends: 
     R (>= 3.5)
+Config/roxygen2/version: 8.1.0

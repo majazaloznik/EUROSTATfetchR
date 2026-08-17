@@ -2,7 +2,7 @@ test_that("prepare_vintage_table works", {
   dittodb::with_mock_db({
     con_test <- make_test_connection()
     toc <- eurostat::get_eurostat_toc()
-    result <- prepare_vintage_table("agr_r_animal", con_test, toc)
+    result <- prepare_vintage_table("apro_mt_ls_r", con_test, toc)
 
     expect_s3_class(result, "data.frame")
     expect_true(nrow(result) == 1)
@@ -13,13 +13,14 @@ test_that("prepare_vintage_table works", {
 test_that("prepare_eurostat_data_for_insert works", {
   dittodb::with_mock_db({
     con_test <- make_test_connection()
-    x <- prepare_eurostat_data_for_insert("agr_r_animal", con_test, "platform")
+    x <- prepare_eurostat_data_for_insert("apro_mt_ls_r", con_test, "platform")
     expect_true(is.list(x))
     expect_true(length(x) == 4)
     expect_true(all(names(x) == c("data", "table_id", "dimension_ids", "dimension_names")))
     expect_true(all(names(x$data) == c("interval_id", "animals", "unit", "geo",
                                        "flag", "TIME_PERIOD",
                                        "value", "time")))
+    print(x)
     expect_true(is.character(x$data$animals))
     expect_true(all(is.na(x$data$flag)))
   })

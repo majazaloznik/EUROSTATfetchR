@@ -48,7 +48,3 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-renv/library/
-renv/local/
-renv/python/
-renv/staging/
