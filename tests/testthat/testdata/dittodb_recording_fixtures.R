@@ -221,3 +221,12 @@ result <- EUROSTAT_import_data_points("teimf040", con_test, schema = "platform")
 dittodb::stop_db_capturing()
 
 
+# ---------------------------------------------------------------------------
+# dittodb fixture recording (run once against the production_backup connection)
+# ---------------------------------------------------------------------------
+start_db_capturing()
+con <- make_test_connection()
+sql_get_eurostat_metabase_changes_from_snapshot(con, 16,
+                                                schema = "eurostat")
+DBI::dbDisconnect(con)
+stop_db_capturing()

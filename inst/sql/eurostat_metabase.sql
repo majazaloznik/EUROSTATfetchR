@@ -29,3 +29,10 @@ CREATE INDEX ix_snap_sha ON eurostat.snapshot (file_sha256);   -- keep it indexe
 CREATE INDEX ix_mb_from ON eurostat.metabase (from_snapshot_id);
 CREATE INDEX ix_mb_to   ON eurostat.metabase (to_snapshot_id);
 
+DROP TABLE IF EXISTS eurostat.subscription;
+CREATE TABLE eurostat.subscription (
+  email   text NOT NULL,
+  dataset text NOT NULL,
+  scope   text NOT NULL DEFAULT 'breaking' CHECK (scope IN ('breaking','all')),
+  PRIMARY KEY (email, dataset)
+);
