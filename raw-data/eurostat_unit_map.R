@@ -40,7 +40,8 @@ eurostat_unit_map <- tibble::tribble(
   "BS-CSMCI-BAL", "ravnotežje v odstotnih točkah",
   "BS-ICI-BAL","ravnotežje v odstotnih točkah",
   "BS-RCI-BAL","ravnotežje v odstotnih točkah",
-  "BS-SCI-BAL","ravnotežje v odstotnih točkah"
+  "BS-SCI-BAL","ravnotežje v odstotnih točkah",
+  "CLV10_MEUR", "mio eur"
 )
 
 
