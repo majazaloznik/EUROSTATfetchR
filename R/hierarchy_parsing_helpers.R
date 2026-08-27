@@ -151,7 +151,7 @@ parse_toc <- function(doc) {
 
   nodes <- unique(as.data.frame(data.table::rbindlist(node_acc$rows)))
   edges <- if (length(edge_acc$rows))
-    as.data.frame(data.table::rbindlist(edge_acc$rows)) else
+    unique(as.data.frame(data.table::rbindlist(edge_acc$rows))) else
       data.frame(parent_code = character(0), child_code = character(0))
 
   list(nodes = nodes, edges = edges, creation_date = creation_date)
