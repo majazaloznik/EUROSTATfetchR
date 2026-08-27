@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <nt:tree xmlns:nt="urn:eu.europa.ec.eurostat.navtree" creationDate="20260827T0011">
+    <nt:branch>
+    <nt:title language="en">Economy and finance</nt:title>
+      <nt:title language="fr">Économie et finances</nt:title>
+        <nt:title language="de">Wirtschaft und Finanzen</nt:title>
+          <nt:code>economy</nt:code>
+          <nt:children>
+          <nt:branch>
+          <nt:title language="en">Business surveys</nt:title>
+            <nt:title language="fr">Enquetes</nt:title>
+              <nt:title language="de">Erhebungen</nt:title>
+                <nt:code>ei_bcs</nt:code>
+                <nt:children>
+                <nt:leaf type="dataset">
+                  <nt:title language="en">Sentiment indicators monthly</nt:title>
+                    <nt:title language="fr">Indicateurs mensuels</nt:title>
+                      <nt:title language="de">Indikatoren monatlich</nt:title>
+                        <nt:code>ei_bssi_m_r2</nt:code>
+                        <nt:lastUpdate>30.07.2026</nt:lastUpdate>
+                        <nt:lastModified>30.07.2026</nt:lastModified>
+                        <nt:children>
+                        <nt:leaf type="table">
+                          <nt:title language="en">Confidence indicators by sector</nt:title>
+                            <nt:title language="fr">Indicateur de confiance</nt:title>
+                              <nt:title language="de">Indikator des Vertrauens</nt:title>
+                                <nt:code>teibs020</nt:code>
+                                <nt:lastUpdate>30.07.2026</nt:lastUpdate>
+                                <nt:lastModified>30.07.2026</nt:lastModified>
+                                </nt:leaf>
+                                </nt:children>
+                                </nt:leaf>
+                                </nt:children>
+                                </nt:branch>
+                                <nt:branch>
+                                <nt:title language="en">Euro indicators</nt:title>
+                                  <nt:title language="fr">Indicateurs euro</nt:title>
+                                    <nt:title language="de">Euro-Indikatoren</nt:title>
+                                      <nt:code>teieuro_bs</nt:code>
+                                      <nt:children>
+                                      <!-- teibs020 appears again here: multi-parent case -->
+                                      <nt:leaf type="table">
+                                        <nt:title language="en">Confidence indicators by sector</nt:title>
+                                          <nt:title language="fr">Indicateur de confiance</nt:title>
+                                            <nt:title language="de">Indikator des Vertrauens</nt:title>
+                                              <nt:code>teibs020</nt:code>
+                                              <nt:lastUpdate>30.07.2026</nt:lastUpdate>
+                                              <nt:lastModified>30.07.2026</nt:lastModified>
+                                              </nt:leaf>
+                                              </nt:children>
+                                              </nt:branch>
+                                              </nt:children>
+                                              </nt:branch>
+                                              <nt:branch>
+                                              <nt:title language="en">Population</nt:title>
+                                                <nt:title language="fr">Population</nt:title>
+                                                  <nt:title language="de">Bevoelkerung</nt:title>
+                                                    <nt:code>popul</nt:code>
+                                                    <nt:children>
+                                                    <!-- dataset with a MISSING english title, to test NA handling -->
+                                                    <nt:leaf type="dataset">
+                                                      <nt:title language="fr">Donnees demographiques</nt:title>
+                                                        <nt:title language="de">Demografische Daten</nt:title>
+                                                          <nt:code>demo_x</nt:code>
+                                                          <nt:lastUpdate>01.06.2026</nt:lastUpdate>
+                                                          <nt:lastModified>01.06.2026</nt:lastModified>
+                                                          </nt:leaf>
+                                                          </nt:children>
+                                                          </nt:branch>
+                                                          </nt:tree>

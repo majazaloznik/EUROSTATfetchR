@@ -67,3 +67,82 @@ test_that("category_exists_with_parent finds existing categories", {
     expect_null(cat_id)
   })
 })
+
+# ---------------------------------------------------------------------------
+# REFACTOR NEEDED FIRST
+# ---------------------------------------------------------------------------
+# fetch_toc() currently does fetch + parse together, so it can't be tested
+# against a local fixture without hitting the network. Split the pure parsing
+# into parse_toc(doc), which takes a parsed xml document and returns the same
+# list (nodes, edges, creation_date). fetch_toc() then just downloads, hashes,
+# reads the xml, and calls parse_toc(). Only parse_toc is unit-tested here;
+# the network fetch in fetch_toc stays untested (it's a thin download + sha).
+#
+#   parse_toc <- function(doc) {
+#     ns   <- c(nt = "urn:eu.europa.ec.eurostat.navtree")
+#     tree <- xml2::xml_root(doc)
+#     ...  (everything from creation_date down to building nodes/edges) ...
+#     list(nodes = nodes, edges = edges, creation_date = creation_date)
+#   }
+#
+#   fetch_toc <- function(url = "...") {
+#     tmp <- tempfile(fileext = ".xml")
+#     httr2::request(url) |> httr2::req_perform(path = tmp)
+#     sha <- digest::digest(file = tmp, algo = "sha256")
+#     res <- parse_toc(xml2::read_xml(tmp))
+#     c(res, list(sha = sha))
+#   }
+# ---------------------------------------------------------------------------
+
+test_that("parse_toc builds the correct node set", {
+  doc <- xml2::read_xml(testthat::test_path("fixtures", "toc_fixture.xml"))
+  res <- parse_toc(doc)
+
+  # 6 distinct nodes: economy, ei_bcs, teieuro_bs, popul (folders/branches),
+  # ei_bssi_m_r2, demo_x (datasets), teibs020 (table) — teibs020 deduped to one
+  expect_equal(nrow(res$nodes), 7)
+  expect_false(any(duplicated(res$nodes$code)))
+
+  # types assigned correctly
+  types <- setNames(res$nodes$type, res$nodes$code)
+  expect_equal(unname(types["economy"]),      "folder")
+  expect_equal(unname(types["ei_bcs"]),        "folder")
+  expect_equal(unname(types["ei_bssi_m_r2"]),  "dataset")
+  expect_equal(unname(types["teibs020"]),      "table")
+
+  # english title chosen
+  titles <- setNames(res$nodes$title, res$nodes$code)
+  expect_equal(unname(titles["ei_bssi_m_r2"]), "Sentiment indicators monthly")
+
+  # missing english title -> NA, not the fr/de fallback
+  expect_true(is.na(titles["demo_x"]))
+})
+
+test_that("parse_toc captures the edge structure including multi-parent", {
+  doc <- xml2::read_xml(testthat::test_path("fixtures", "toc_fixture.xml"))
+  res <- parse_toc(doc)
+  # edges: economy->ei_bcs, economy->teieuro_bs, ei_bcs->ei_bssi_m_r2,
+  #        ei_bssi_m_r2->teibs020, teieuro_bs->teibs020, popul->demo_x = 6
+  expect_equal(nrow(res$edges), 6)
+
+  # multi-parent: teibs020 has two parents
+  parents_of_teibs <- res$edges$parent_code[res$edges$child_code == "teibs020"]
+  expect_setequal(parents_of_teibs, c("ei_bssi_m_r2", "teieuro_bs"))
+
+  # table nested under dataset: the ei_bssi_m_r2 -> teibs020 edge exists
+  expect_true(any(res$edges$parent_code == "ei_bssi_m_r2" &
+                    res$edges$child_code  == "teibs020"))
+
+  # top-level branches (economy, popul) have no parent edge
+  expect_false("economy" %in% res$edges$child_code)
+  expect_false("popul"   %in% res$edges$child_code)
+})
+
+test_that("parse_toc parses the creationDate attribute", {
+  doc <- xml2::read_xml(testthat::test_path("fixtures", "toc_fixture.xml"))
+  res <- parse_toc(doc)
+
+  expect_s3_class(res$creation_date, "POSIXct")
+  expect_equal(format(res$creation_date, "%Y-%m-%d %H:%M", tz = "UTC"),
+               "2026-08-27 00:11")
+})

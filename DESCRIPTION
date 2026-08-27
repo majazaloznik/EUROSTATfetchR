@@ -18,18 +18,22 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
+    data.table,
     DBI,
     dbplyr,
+    digest,
     dplyr,
     eurostat,
     httr,
+    httr2,
     jsonlite,
     purrr,
     RPostgres,
     tibble,
     tidyr,
     UMARaccessR,
-    UMARimportR
+    UMARimportR,
+    xml2
 Remotes:
     majazaloznik/UMARaccessR,
     majazaloznik/UMARimportR
