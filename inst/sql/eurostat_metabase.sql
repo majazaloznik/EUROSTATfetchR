@@ -36,3 +36,6 @@ CREATE TABLE eurostat.subscription (
   scope   text NOT NULL DEFAULT 'breaking' CHECK (scope IN ('breaking','all')),
   PRIMARY KEY (email, dataset)
 );
+
+ALTER TABLE eurostat.subscription
+  ADD COLUMN kind text NOT NULL DEFAULT 'dataset' CHECK (kind IN ('dataset','folder'));
